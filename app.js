@@ -6,18 +6,22 @@
 
 const DATA = window.DATA;
 const IND = window.INDICATORS;
+const MKT = window.MARKETS;
 const SVGNS = "http://www.w3.org/2000/svg";
 
 const $ = (id) => document.getElementById(id);
 const list = $("list"), meta = $("meta"), endNote = $("end");
 const tiles = $("tiles"), feedControls = $("feed-controls"), reportList = $("reports");
-const panels = { feed: $("panel-feed"), reports: $("panel-reports"), data: $("panel-data") };
+const panels = { feed: $("panel-feed"), reports: $("panel-reports"),
+                 markets: $("panel-markets"), data: $("panel-data") };
 
 const HOURS = [["24h", 24], ["48h", 48], ["7d", 168], ["30d", 720]];
 const VIEWS = [["All", "all"], ["Unread", "unread"], ["Read", "read"]];
 const BATCH = [25, 50, 100];
 const REGIONS = [["All", "all"], ["World", "world"], ["Europe", "europe"], ["Spain", "spain"]];
-const TABS = [["News feed", "feed"], ["Reports", "reports"], ["Macro-economics", "data"]];
+const TABS = [["News feed", "feed"], ["Reports", "reports"],
+              ["Markets", "markets"], ["Macro-economics", "data"]];
+const KINDS = [["All", "all"], ["Indices", "index"], ["Stocks", "stock"]];
 // tier 1 wire · 2 quality · 3 regional/specialist · 4 social apps and channels
 const SOURCES = [["All", "all"], ["News only", "news"]];
 const SOCIAL_TIER = 4;
@@ -46,6 +50,9 @@ const state = {
   batch:    store.get("batch", 25),
   tab:      store.get("tab", "feed"),
   sources:  store.get("sources", "all") === "vetted" ? "news" : store.get("sources", "all"),
+  window:   store.get("window", "DoD"),
+  market:   store.get("market", "all"),
+  kind:     store.get("kind", "all"),
   reportHours: store.get("reportHours", 720),
 };
 
@@ -349,6 +356,105 @@ function updateReportsMeta() {
   meta.title = "";
 }
 
+
+// ─────────────────────────────── markets ───────────────────────────────
+// One row per security. The window buttons switch which of the nine
+// precomputed changes is shown — no recalculation, the numbers already
+// arrived that way from markets.py.
+
+function pctCell(v) {
+  const cell = el("span", "pct");
+  if (v === undefined || v === null) { cell.textContent = "–"; cell.classList.add("flat"); return cell; }
+  cell.textContent = `${v > 0 ? "+" : ""}${v.toFixed(2)}%`;
+  cell.classList.add(v > 0 ? "up" : v < 0 ? "down" : "flat");
+  return cell;
+}
+
+function marketRow(r) {
+  const row = el("div", "mrow");
+  if (r.kind === "index") row.classList.add("is-index");
+
+  const left = el("div", "mrow-id");
+  left.append(el("span", "mname", r.name), el("span", "mticker", r.symbol));
+
+  const price = el("span", "mprice", `${r.price.toLocaleString(undefined, { maximumFractionDigits: 2 })}`);
+  price.title = `${r.currency} · history since ${r.since}`;
+
+  row.append(left, price, pctCell(r.changes[state.window]), spark(
+    r.spark.map((v, i) => ({ period: i, value: v })), 110, 26));
+  row.title = MKT.windows
+    .map((w) => `${w}: ${r.changes[w] === undefined ? "–" : r.changes[w] + "%"}`)
+    .join("   ");
+  return row;
+}
+
+function marketRows() {
+  return MKT.rows.filter((r) => {
+    if (state.market !== "all" && r.market !== state.market) return false;
+    if (state.kind !== "all" && r.kind !== state.kind) return false;
+    return true;
+  });
+}
+
+function renderMarkets() {
+  const host = $("rows");
+  host.replaceChildren();
+  if (!MKT) { host.append(el("p", "empty", "No markets.js — run:  uv run markets.py")); return; }
+
+  const rows = marketRows();
+  if (!rows.length) { host.append(el("p", "empty", "Nothing matches those filters.")); return; }
+
+  const groups = new Map();
+  for (const r of rows) {
+    if (!groups.has(r.market)) groups.set(r.market, []);
+    groups.get(r.market).push(r);
+  }
+  for (const [id, items] of groups) {
+    const section = el("section", "mgroup");
+    section.append(el("h2", "group-title", MKT.markets[id]));
+    const body = el("div", "mtable");
+    body.append(...items.map(marketRow));
+    section.append(body);
+    host.append(section);
+  }
+}
+
+function updateMarketsMeta() {
+  if (!MKT) { meta.textContent = "No market data yet"; return; }
+  const n = marketRows().length;
+  const bits = [`${n} of ${MKT.rows.length} securities`, `${state.window} change`,
+                `updated ${ago(MKT.generated)}`];
+  if (MKT.failed.length) bits.push(`${MKT.failed.length} failed`);
+  meta.textContent = bits.join("  ·  ");
+  meta.classList.toggle("warn", MKT.failed.length > 0);
+  meta.title = MKT.failed.length ? "Failed: " + MKT.failed.join(", ") : "";
+}
+
+function buildMarketControls() {
+  if (!MKT) return;
+  segment($("window"), MKT.windows.map((w) => [w, w]), () => state.window, (v) => {
+    state.window = v; store.set("window", v);
+    syncSegment($("window"), () => state.window);
+    renderMarkets(); updateMarketsMeta();
+  });
+  segment($("kind"), KINDS, () => state.kind, (v) => {
+    state.kind = v; store.set("kind", v);
+    syncSegment($("kind"), () => state.kind);
+    renderMarkets(); updateMarketsMeta();
+  });
+  const sel = $("market");
+  sel.replaceChildren();
+  const all = el("option", null, "All markets"); all.value = "all"; sel.append(all);
+  for (const [id, label] of Object.entries(MKT.markets)) {
+    const o = el("option", null, label); o.value = id; sel.append(o);
+  }
+  sel.value = state.market;
+  sel.addEventListener("change", () => {
+    state.market = sel.value; store.set("market", state.market);
+    renderMarkets(); updateMarketsMeta();
+  });
+}
+
 // ─────────────────────────────── tabs ──────────────────────────────────
 
 function bindTime() {
@@ -368,7 +474,7 @@ function showTab(name) {
   store.set("tab", name);
 
   for (const [key, panel] of Object.entries(panels)) panel.hidden = key !== name;
-  feedControls.hidden = name === "data";
+  feedControls.hidden = name === "data" || name === "markets";
   for (const node of document.querySelectorAll(".only-feed")) node.hidden = name !== "feed";
   bindTime();
 
@@ -377,6 +483,7 @@ function showTab(name) {
   }
 
   if (name === "data") { renderData(); updateDataMeta(); }
+  else if (name === "markets") { renderMarkets(); updateMarketsMeta(); }
   else if (name === "reports") { renderReports(); updateReportsMeta(); }
   else { render({ animate: false }); }
 }
@@ -541,6 +648,7 @@ if (!DATA) {
   meta.textContent = "No data.js — run:  uv run fetch.py";
 } else {
   build();
+  buildMarketControls();
   buildTabs();
   showTab(state.tab);
 }

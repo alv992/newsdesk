@@ -345,3 +345,67 @@ main {
   border-radius: 3px;
   padding: 1px 5px;
 }
+
+/* ─────────────────────────────── markets ────────────────────────────── */
+
+.market-bar {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 16px 0 4px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px 18px;
+}
+
+#rows { max-width: 1000px; margin: 0 auto; padding-top: 18px;
+        display: flex; flex-direction: column; gap: 26px; }
+
+.mtable { display: flex; flex-direction: column; }
+
+.mrow {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) 108px 84px 110px;
+  align-items: center;
+  gap: 14px;
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--border-soft, #453f3b);
+}
+.mrow:hover { background: var(--bg-card); }
+.mrow:last-child { border-bottom: none; }
+
+/* Indices lead each market and read as headings, not constituents. */
+.mrow.is-index { background: var(--bg-card); }
+.mrow.is-index .mname { color: var(--accent); font-weight: 600; }
+
+.mrow-id { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.mname {
+  font-size: 13.5px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.mticker { font-size: 10px; color: var(--fg-faint); letter-spacing: .05em; }
+
+.mprice {
+  text-align: right;
+  font-size: 13.5px;
+  font-variant-numeric: tabular-nums;
+  color: var(--fg-dim);
+}
+
+.pct {
+  text-align: right;
+  font-size: 13.5px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.pct.up   { color: #b8bb26; }
+.pct.down { color: #fb4934; }
+.pct.flat { color: var(--fg-faint); font-weight: 400; }
+
+.mrow .spark { height: 26px; }
+.mrow.is-index .spark-line { stroke: var(--accent); }
+
+@media (max-width: 640px) {
+  .mrow { grid-template-columns: minmax(0,1fr) 74px 76px; }
+  .mrow .spark { display: none; }
+}

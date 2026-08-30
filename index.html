@@ -65,6 +65,24 @@
     <div id="reports"></div>
   </section>
 
+  <section id="panel-markets" hidden>
+    <div class="market-bar">
+      <div class="field">
+        <span>Window</span>
+        <div id="window" class="seg" role="group" aria-label="Timeframe"></div>
+      </div>
+      <label class="field">
+        <span>Market</span>
+        <select id="market"></select>
+      </label>
+      <div class="field">
+        <span>Show</span>
+        <div id="kind" class="seg" role="group" aria-label="Indices or stocks"></div>
+      </div>
+    </div>
+    <div id="rows"></div>
+  </section>
+
   <section id="panel-data" hidden>
     <div id="tiles"></div>
   </section>
@@ -73,6 +91,7 @@
 <!-- Loaded as scripts, not fetched: fetch() is blocked on file:// URLs. See D7. -->
 <script src="data.js"></script>
 <script src="indicators.js"></script>
+<script src="markets.js"></script>
 <script src="app.js"></script>
 
 </body>

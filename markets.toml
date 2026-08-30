@@ -1,0 +1,79 @@
+# Markets tracked by markets.py.
+#
+# Symbols are Yahoo format. Exchange suffixes:
+#   US none · Spain .MC · Germany .DE · France .PA · Italy .MI
+#   Sweden .ST · UK .L · Japan .T · India .NS · Singapore .SI · HK .HK
+#
+# Indices are listed under [market.<id>.index], constituents under .stocks.
+# A symbol that fails is logged and skipped — prune it here when it does.
+
+[[market]]
+id = "us"
+label = "United States"
+index = { "^GSPC" = "S&P 500", "^IXIC" = "Nasdaq Composite", "^DJI" = "Dow Jones", "^RUT" = "Russell 2000", "^VIX" = "VIX" }
+stocks = { "AAPL" = "Apple", "MSFT" = "Microsoft", "NVDA" = "Nvidia", "AMZN" = "Amazon", "GOOGL" = "Alphabet", "META" = "Meta", "TSLA" = "Tesla", "BRK-B" = "Berkshire Hathaway", "JPM" = "JPMorgan Chase", "V" = "Visa", "UNH" = "UnitedHealth", "XOM" = "Exxon Mobil", "JNJ" = "Johnson & Johnson", "WMT" = "Walmart", "PG" = "Procter & Gamble", "MA" = "Mastercard", "HD" = "Home Depot", "CVX" = "Chevron", "MRK" = "Merck", "KO" = "Coca-Cola", "PEP" = "PepsiCo", "COST" = "Costco", "MCD" = "McDonald's", "CSCO" = "Cisco", "INTC" = "Intel", "IBM" = "IBM", "BA" = "Boeing", "CAT" = "Caterpillar", "GS" = "Goldman Sachs", "AMD" = "AMD" }
+
+[[market]]
+id = "es"
+label = "Spain"
+index = { "^IBEX" = "IBEX 35" }
+stocks = { "SAN.MC" = "Banco Santander", "BBVA.MC" = "BBVA", "ITX.MC" = "Inditex", "IBE.MC" = "Iberdrola", "TEF.MC" = "Telefónica", "REP.MC" = "Repsol", "AENA.MC" = "Aena", "FER.MC" = "Ferrovial", "CABK.MC" = "CaixaBank", "AMS.MC" = "Amadeus", "ELE.MC" = "Endesa", "NTGY.MC" = "Naturgy", "ACS.MC" = "ACS", "SAB.MC" = "Banco Sabadell", "BKT.MC" = "Bankinter", "GRF.MC" = "Grifols", "MAP.MC" = "Mapfre", "ANA.MC" = "Acciona", "RED.MC" = "Redeia", "ENG.MC" = "Enagás", "CLNX.MC" = "Cellnex", "MTS.MC" = "ArcelorMittal", "IAG.MC" = "IAG", "MEL.MC" = "Meliá Hotels", "COL.MC" = "Colonial", "MRL.MC" = "Merlin Properties", "SLR.MC" = "Solaria", "ACX.MC" = "Acerinox", "FDR.MC" = "Fluidra", "LOG.MC" = "Logista", "ROVI.MC" = "Rovi", "IDR.MC" = "Indra", "UNI.MC" = "Unicaja", "PUIG.MC" = "Puig" }
+
+[[market]]
+id = "de"
+label = "Germany"
+index = { "^GDAXI" = "DAX" }
+stocks = { "SAP.DE" = "SAP", "SIE.DE" = "Siemens", "ALV.DE" = "Allianz", "DTE.DE" = "Deutsche Telekom", "AIR.DE" = "Airbus", "MBG.DE" = "Mercedes-Benz", "BMW.DE" = "BMW", "VOW3.DE" = "Volkswagen", "BAS.DE" = "BASF", "BAYN.DE" = "Bayer", "MRK.DE" = "Merck KGaA", "DBK.DE" = "Deutsche Bank", "MUV2.DE" = "Munich Re", "RWE.DE" = "RWE", "EOAN.DE" = "E.ON", "ADS.DE" = "Adidas", "IFX.DE" = "Infineon", "DHL.DE" = "Deutsche Post DHL", "HEN3.DE" = "Henkel", "BEI.DE" = "Beiersdorf", "CON.DE" = "Continental", "HEI.DE" = "Heidelberg Materials", "SY1.DE" = "Symrise", "ZAL.DE" = "Zalando", "P911.DE" = "Porsche AG", "RHM.DE" = "Rheinmetall", "SHL.DE" = "Siemens Healthineers", "ENR.DE" = "Siemens Energy", "QIA.DE" = "Qiagen", "1COV.DE" = "Covestro" }
+
+[[market]]
+id = "fr"
+label = "France"
+index = { "^FCHI" = "CAC 40" }
+stocks = { "MC.PA" = "LVMH", "OR.PA" = "L'Oréal", "TTE.PA" = "TotalEnergies", "SU.PA" = "Schneider Electric", "SAN.PA" = "Sanofi", "AI.PA" = "Air Liquide", "AIR.PA" = "Airbus", "EL.PA" = "EssilorLuxottica", "BNP.PA" = "BNP Paribas", "RMS.PA" = "Hermès", "CS.PA" = "AXA", "SAF.PA" = "Safran", "DG.PA" = "Vinci", "KER.PA" = "Kering", "GLE.PA" = "Société Générale", "ACA.PA" = "Crédit Agricole", "ORA.PA" = "Orange", "CAP.PA" = "Capgemini", "STLAP.PA" = "Stellantis", "VIE.PA" = "Veolia", "ENGI.PA" = "Engie", "PUB.PA" = "Publicis", "LR.PA" = "Legrand", "ML.PA" = "Michelin", "RI.PA" = "Pernod Ricard", "DSY.PA" = "Dassault Systèmes", "BN.PA" = "Danone", "CA.PA" = "Carrefour", "HO.PA" = "Thales", "EN.PA" = "Bouygues" }
+
+[[market]]
+id = "it"
+label = "Italy"
+index = { "FTSEMIB.MI" = "FTSE MIB" }
+stocks = { "ENI.MI" = "Eni", "ISP.MI" = "Intesa Sanpaolo", "UCG.MI" = "UniCredit", "ENEL.MI" = "Enel", "STLAM.MI" = "Stellantis", "G.MI" = "Generali", "RACE.MI" = "Ferrari", "TIT.MI" = "Telecom Italia", "PST.MI" = "Poste Italiane", "SRG.MI" = "Snam", "TRN.MI" = "Terna", "MB.MI" = "Mediobanca", "BAMI.MI" = "Banco BPM", "PIRC.MI" = "Pirelli", "LDO.MI" = "Leonardo", "MONC.MI" = "Moncler", "A2A.MI" = "A2A", "CPR.MI" = "Campari", "REC.MI" = "Recordati", "IG.MI" = "Italgas" }
+
+[[market]]
+id = "se"
+label = "Sweden"
+index = { "^OMX" = "OMX Stockholm 30" }
+stocks = { "VOLV-B.ST" = "Volvo", "ATCO-A.ST" = "Atlas Copco", "INVE-B.ST" = "Investor AB", "ERIC-B.ST" = "Ericsson", "SEB-A.ST" = "SEB", "SWED-A.ST" = "Swedbank", "SHB-A.ST" = "Handelsbanken", "ASSA-B.ST" = "Assa Abloy", "SAND.ST" = "Sandvik", "HM-B.ST" = "H&M", "EVO.ST" = "Evolution", "TELIA.ST" = "Telia", "SKF-B.ST" = "SKF", "ALFA.ST" = "Alfa Laval", "ESSITY-B.ST" = "Essity", "NDA-SE.ST" = "Nordea", "BOL.ST" = "Boliden", "EPI-A.ST" = "Epiroc", "HEXA-B.ST" = "Hexagon", "NIBE-B.ST" = "NIBE" }
+
+[[market]]
+id = "uk"
+label = "United Kingdom"
+index = { "^FTSE" = "FTSE 100" }
+stocks = { "SHEL.L" = "Shell", "AZN.L" = "AstraZeneca", "HSBA.L" = "HSBC", "ULVR.L" = "Unilever", "BP.L" = "BP", "GSK.L" = "GSK", "RIO.L" = "Rio Tinto", "REL.L" = "RELX", "BATS.L" = "British American Tobacco", "DGE.L" = "Diageo", "GLEN.L" = "Glencore", "NG.L" = "National Grid", "LSEG.L" = "London Stock Exchange", "BARC.L" = "Barclays", "LLOY.L" = "Lloyds", "NWG.L" = "NatWest", "VOD.L" = "Vodafone", "TSCO.L" = "Tesco", "AAL.L" = "Anglo American", "IMB.L" = "Imperial Brands", "PRU.L" = "Prudential", "SSE.L" = "SSE", "CPG.L" = "Compass Group", "RR.L" = "Rolls-Royce", "BA.L" = "BAE Systems" }
+
+[[market]]
+id = "jp"
+label = "Japan"
+index = { "^N225" = "Nikkei 225", "1306.T" = "TOPIX (ETF)" }
+stocks = { "7203.T" = "Toyota", "6758.T" = "Sony", "8306.T" = "MUFG", "6861.T" = "Keyence", "9984.T" = "SoftBank Group", "6098.T" = "Recruit", "9433.T" = "KDDI", "9432.T" = "NTT", "4063.T" = "Shin-Etsu Chemical", "8035.T" = "Tokyo Electron", "6501.T" = "Hitachi", "7974.T" = "Nintendo", "4502.T" = "Takeda", "8316.T" = "Sumitomo Mitsui", "8058.T" = "Mitsubishi Corp", "8031.T" = "Mitsui & Co", "6902.T" = "Denso", "7267.T" = "Honda", "6367.T" = "Daikin", "4661.T" = "Oriental Land" }
+
+[[market]]
+id = "cn"
+label = "China & Hong Kong"
+index = { "^HSI" = "Hang Seng", "000001.SS" = "Shanghai Composite", "399001.SZ" = "Shenzhen Component" }
+stocks = { "0700.HK" = "Tencent", "9988.HK" = "Alibaba", "3690.HK" = "Meituan", "1299.HK" = "AIA Group", "0939.HK" = "China Construction Bank", "1398.HK" = "ICBC", "0941.HK" = "China Mobile", "2318.HK" = "Ping An", "0388.HK" = "HKEX", "1810.HK" = "Xiaomi", "9618.HK" = "JD.com", "2020.HK" = "Anta Sports", "0883.HK" = "CNOOC", "1211.HK" = "BYD", "600519.SS" = "Kweichow Moutai" }
+
+[[market]]
+id = "in"
+label = "India"
+index = { "^NSEI" = "Nifty 50", "^BSESN" = "Sensex" }
+stocks = { "RELIANCE.NS" = "Reliance Industries", "TCS.NS" = "Tata Consultancy", "HDFCBANK.NS" = "HDFC Bank", "ICICIBANK.NS" = "ICICI Bank", "INFY.NS" = "Infosys", "BHARTIARTL.NS" = "Bharti Airtel", "SBIN.NS" = "State Bank of India", "ITC.NS" = "ITC", "LT.NS" = "Larsen & Toubro", "HINDUNILVR.NS" = "Hindustan Unilever", "BAJFINANCE.NS" = "Bajaj Finance", "MARUTI.NS" = "Maruti Suzuki", "AXISBANK.NS" = "Axis Bank", "KOTAKBANK.NS" = "Kotak Mahindra", "SUNPHARMA.NS" = "Sun Pharma", "TITAN.NS" = "Titan", "ADANIENT.NS" = "Adani Enterprises", "WIPRO.NS" = "Wipro", "NTPC.NS" = "NTPC" }
+
+[[market]]
+id = "sg"
+label = "Singapore"
+index = { "^STI" = "Straits Times Index" }
+stocks = { "D05.SI" = "DBS Group", "O39.SI" = "OCBC", "U11.SI" = "UOB", "Z74.SI" = "Singtel", "C6L.SI" = "Singapore Airlines", "S68.SI" = "SGX", "F34.SI" = "Wilmar", "C38U.SI" = "CapitaLand Integrated", "A17U.SI" = "CapitaLand Ascendas", "BN4.SI" = "Keppel", "S63.SI" = "ST Engineering", "G13.SI" = "Genting Singapore" }
+
+[[market]]
+id = "other"
+label = "Other markets"
+index = { "^GSPTSE" = "TSX (Canada)", "^AXJO" = "ASX 200 (Australia)", "^SSMI" = "SMI (Switzerland)", "^AEX" = "AEX (Netherlands)", "^BVSP" = "Bovespa (Brazil)", "^KS11" = "KOSPI (South Korea)", "^TWII" = "TAIEX (Taiwan)", "^MXX" = "IPC (Mexico)" }

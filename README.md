@@ -2,8 +2,8 @@
 
 A local news dashboard. Pulls ~55 hand-picked feeds, tags each story with a
 category and the countries it mentions, and shows the result as a list you
-can filter. A second tab shows statistical indicators from the World Bank
-and the ECB.
+can filter. Other tabs hold slow analysis, market prices and
+macro-economic indicators.
 
 No API keys. No accounts. No build step. Two small Python scripts write data
 files, and a static page reads them.
@@ -14,8 +14,9 @@ Built against the spec in the Obsidian vault under
 ## Run it
 
 ```bash
-uv run fetch.py          # ~55 feeds, about 6 seconds
-uv run indicators.py     # 11 series from the World Bank and ECB
+uv run fetch.py          # ~61 feeds, about 6 seconds
+uv run indicators.py     # 11 macro series from the World Bank and ECB
+uv run markets.py        # 282 securities across 12 markets, about 45 seconds
 xdg-open index.html
 ```
 
@@ -60,12 +61,13 @@ npm install     # jsdom, once
 npm test
 ```
 
-59 assertions across five suites. They load the real `index.html`, the real
+74 assertions across six suites. They load the real `index.html`, the real
 data files and the real `app.js` into jsdom and drive the page through the
 same clicks a person would make, so they exercise the actual filters rather
 than a mock of them.
 
-Requires `data.js` and `indicators.js` to exist — run the two fetchers first.
+Requires `data.js`, `indicators.js` and `markets.js` to exist — run the
+three fetchers first.
 
 `tests/visibility.test.mjs` is the one worth knowing about. It checks
 `getComputedStyle`, not `element.hidden`, because an earlier version passed
@@ -77,13 +79,15 @@ sets `display: flex`, which beats the browser's own `[hidden]` rule.
 ```
 fetch.py         feeds → data.js
 indicators.py    agencies → indicators.js
+markets.py       Yahoo chart API → markets.js
 feeds.toml       sources
 categories.toml  keyword rules
 indicators.toml  which series to track
+markets.toml     which indices and stocks to track
 index.html       the page
 app.js           filtering, sorting, rendering
 style.css        Gruvbox Dark Soft
 tests/           jsdom suites, run with npm test
 ```
 
-`data.js` and `indicators.js` are generated and not committed.
+`data.js`, `indicators.js` and `markets.js` are generated and not committed.

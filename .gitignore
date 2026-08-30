@@ -14,3 +14,5 @@ __pycache__/
 
 # Test dependencies. The app itself has none.
 node_modules/
+markets.js
+markets.js.tmp
