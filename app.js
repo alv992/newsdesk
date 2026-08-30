@@ -17,7 +17,7 @@ const HOURS = [["24h", 24], ["48h", 48], ["7d", 168], ["30d", 720]];
 const VIEWS = [["All", "all"], ["Unread", "unread"], ["Read", "read"]];
 const BATCH = [25, 50, 100];
 const REGIONS = [["All", "all"], ["World", "world"], ["Europe", "europe"], ["Spain", "spain"]];
-const TABS = [["News feed", "feed"], ["Reports", "reports"], ["Data", "data"]];
+const TABS = [["News feed", "feed"], ["Reports", "reports"], ["Macro-economics", "data"]];
 // tier 1 wire · 2 quality · 3 regional/specialist · 4 social apps and channels
 const SOURCES = [["All", "all"], ["News only", "news"]];
 const SOCIAL_TIER = 4;
