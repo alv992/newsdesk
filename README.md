@@ -16,7 +16,7 @@ Built against the spec in the Obsidian vault under
 ```bash
 uv run fetch.py          # ~61 feeds, about 6 seconds
 uv run indicators.py     # 11 macro series from the World Bank and ECB
-uv run markets.py        # 282 securities across 12 markets, about 45 seconds
+uv run markets.py        # 392 securities across 12 markets, about 60 seconds
 xdg-open index.html
 ```
 
@@ -73,6 +73,19 @@ three fetchers first.
 `getComputedStyle`, not `element.hidden`, because an earlier version passed
 while the controls it claimed were hidden sat plainly on screen: `.field`
 sets `display: flex`, which beats the browser's own `[hidden]` rule.
+
+## Markets
+
+`markets.toml` lists indices and their constituents. **Stock order is the
+ranking** — largest by market capitalisation first — and `markets.py` keeps
+the top 35 per market.
+
+That order is curated by hand. Yahoo no longer exposes market cap on any
+keyless endpoint: it is absent from the chart metadata, and both
+`quoteSummary` and `v7/quote` answer 401 without a crumb. Ranking by price
+times volume was the alternative, but that is turnover rather than size — a
+cheap, heavily traded stock would outrank a large one. The order drifts;
+re-check it once or twice a year.
 
 ## Layout
 

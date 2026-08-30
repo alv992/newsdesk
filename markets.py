@@ -34,6 +34,16 @@ UA = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) newsdesk/0.1"}
 TIMEOUT = 25
 WORKERS = 4          # gentle: this is an undocumented endpoint
 SPARK_POINTS = 60
+MAX_STOCKS = 35      # per market. Indices are never capped.
+
+# Ranking is by market capitalisation, and it comes from the ORDER of the
+# stocks in markets.toml — largest first. Yahoo does not expose market cap
+# on any endpoint that still works without a crumb: the chart meta has no
+# such field and both quoteSummary and v7/quote now answer 401.
+#
+# So the order is curated. It is a snapshot and it drifts; re-check it once
+# or twice a year. The alternative was ranking by price x volume, which is
+# turnover, not size — a cheap heavily-traded stock would outrank a large one.
 
 # label -> (series, how many points back)   d = daily, m = monthly
 WINDOWS = [
@@ -76,7 +86,7 @@ def pct(now, then):
 
 def fetch_one(job):
     """Never raises. One bad symbol must not lose the rest."""
-    sym, name, market, kind = job
+    sym, name, market, kind, rank = job
     try:
         daily, meta = series(sym, "1y", "1d")
         monthly, _ = series(sym, "max", "1mo")
@@ -100,6 +110,7 @@ def fetch_one(job):
             "name": name,
             "market": market,
             "kind": kind,                     # index | stock
+            "rank": rank,                     # position by market cap, largest = 0
             "currency": meta.get("currency", ""),
             "price": round(last, 4),
             "changes": changes,
@@ -134,10 +145,16 @@ def main():
     jobs, markets = [], {}
     for m in cfg["market"]:
         markets[m["id"]] = m["label"]
-        for sym, name in m.get("index", {}).items():
-            jobs.append((sym, name, m["id"], "index"))
-        for sym, name in m.get("stocks", {}).items():
-            jobs.append((sym, name, m["id"], "stock"))
+        for rank, (sym, name) in enumerate(m.get("index", {}).items()):
+            jobs.append((sym, name, m["id"], "index", rank))
+
+        # tomllib preserves document order, so position in the file is the rank.
+        stocks = list(m.get("stocks", {}).items())
+        if len(stocks) > MAX_STOCKS:
+            log(f"  {m['label']}: keeping the largest {MAX_STOCKS} of {len(stocks)}")
+            stocks = stocks[:MAX_STOCKS]
+        for rank, (sym, name) in enumerate(stocks):
+            jobs.append((sym, name, m["id"], "stock", rank))
 
     log(f"{len(jobs)} symbols across {len(markets)} markets\n")
     t0 = time.time()
@@ -152,7 +169,7 @@ def main():
         else:
             rows.append(row)
 
-    rows.sort(key=lambda r: (r["market"], r["kind"] != "index", r["name"]))
+    rows.sort(key=lambda r: (r["market"], r["kind"] != "index", r["rank"]))
     write(rows, failed, markets)
     log(f"\n{len(rows)} symbols · {len(failed)} failed · {time.time() - t0:.0f}s")
 
