@@ -16,6 +16,11 @@
 
 * { box-sizing: border-box; }
 
+/* The browser's own [hidden] rule is display:none, but any author rule with
+   a class selector beats it — .field and .cats both set display:flex, so
+   hidden elements stayed on screen. This has to win outright. */
+[hidden] { display: none !important; }
+
 body {
   margin: 0;
   padding: 0 20px 80px;
@@ -265,7 +270,6 @@ main {
 }
 .tab:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 
-#feed-controls[hidden] { display: none; }
 
 /* ─────────────────────────── data tab tiles ─────────────────────────── */
 
