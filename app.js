@@ -380,11 +380,18 @@ function marketBlock(m) {
     line.append(el("span", "bl-name", `${b.name} · ${b.yield.toFixed(2)}%`), pctCell(b.change, "bp"));
     grid.append(line);
   }
-  for (const v of m.movers) {
-    const line = el("div", "brief-line");
-    line.append(el("span", "bl-name", v.name), pctCell(v.change, "pct"));
-    grid.append(line);
-  }
+  const movers = (items, label, cls) => {
+    if (!items.length) return;
+    grid.append(el("div", `brief-movers-label ${cls}`, label));
+    for (const v of items) {
+      const line = el("div", "brief-line");
+      line.append(el("span", "bl-name", v.name), pctCell(v.change, "pct"));
+      grid.append(line);
+    }
+  };
+  movers(m.risers, "Top movers", "up");
+  movers(m.fallers, "Low movers", "down");
+
   box.append(grid);
   return box;
 }
@@ -420,7 +427,8 @@ function renderSummary() {
   }
 
   const mk = el("section", "brief-markets");
-  mk.append(el("h3", "brief-cat", "Markets · year on year"));
+  const win = (SUM.markets[0] || {}).window || "1M";
+  mk.append(el("h3", "brief-cat", `Markets · ${win === "1M" ? "month on month" : win}`));
   const wrap = el("div", "brief-market-grid");
   wrap.append(...SUM.markets.map(marketBlock));
   mk.append(wrap);

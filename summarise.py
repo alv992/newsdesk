@@ -37,7 +37,12 @@ HOURS = 24
 MAX_TITLES = 45          # per category — a small model needs a short list
 PER_SOURCE = 4           # so no single feed writes the paragraph
 TOP_MOVERS = 5
+WINDOW = "1M"            # month on month. A year barely moves between runs
 MAX_TIER = 3             # skip social sources in the brief
+
+# NEWSDESK_NEWS=skip reuses yesterday's paragraphs and only recomputes the
+# market half. The market half takes a second; the model takes minutes.
+SKIP_NEWS = os.environ.get("NEWSDESK_NEWS") == "skip"
 
 THINK = re.compile(r"<think>.*?</think>", re.S | re.I)
 
@@ -58,30 +63,40 @@ def load(name, var):
 # ─────────────────────────── markets, computed ───────────────────────────
 
 def market_section(mkt):
-    """Year-on-year. Top five moves per market, by size of move, plus every
-    index and bond that has a 1Y figure."""
+    """Month on month. The five biggest risers and the five biggest fallers
+    per market, plus every index and bond with a figure.
+
+    A year-on-year figure barely changes between daily runs, so the brief
+    would read the same every morning. A month moves enough to be news."""
     by_market = {}
     for r in mkt["rows"]:
         by_market.setdefault(r["market"], []).append(r)
 
     out = []
     for mid, rows in by_market.items():
-        has = lambda r: r["changes"].get("1Y") is not None
+        has = lambda r: r["changes"].get(WINDOW) is not None
 
-        indices = [{"name": r["name"], "change": r["changes"]["1Y"]}
+        indices = [{"name": r["name"], "change": r["changes"][WINDOW]}
                    for r in rows if r["kind"] == "index" and has(r)]
-        bonds = [{"name": r["name"], "yield": r["price"], "change": r["changes"]["1Y"]}
+        bonds = [{"name": r["name"], "yield": r["price"], "change": r["changes"][WINDOW]}
                  for r in rows if r["kind"] == "bond" and has(r)]
 
-        stocks = [r for r in rows if r["kind"] == "stock" and has(r)]
-        stocks.sort(key=lambda r: abs(r["changes"]["1Y"]), reverse=True)
-        movers = [{"name": r["name"], "symbol": r["symbol"], "change": r["changes"]["1Y"]}
-                  for r in stocks[:TOP_MOVERS]]
+        stocks = sorted((r for r in rows if r["kind"] == "stock" and has(r)),
+                        key=lambda r: r["changes"][WINDOW], reverse=True)
+        entry = lambda r: {"name": r["name"], "symbol": r["symbol"],
+                           "change": r["changes"][WINDOW]}
+        risers = [entry(r) for r in stocks[:TOP_MOVERS]]
+        fallers = [entry(r) for r in reversed(stocks[-TOP_MOVERS:])]
 
-        if not (indices or bonds or movers):
+        # A market with fewer than ten stocks would list the same name twice.
+        seen = {r["symbol"] for r in risers}
+        fallers = [f for f in fallers if f["symbol"] not in seen]
+
+        if not (indices or bonds or risers or fallers):
             continue
-        out.append({"market": mid, "label": mkt["markets"][mid],
-                    "indices": indices, "bonds": bonds, "movers": movers})
+        out.append({"market": mid, "label": mkt["markets"][mid], "window": WINDOW,
+                    "indices": indices, "bonds": bonds,
+                    "risers": risers, "fallers": fallers})
     return out
 
 
@@ -185,9 +200,14 @@ def main():
 
     t0 = time.time()
     markets = market_section(mkt)          # never fails, never guesses
-    log(f"markets: {len(markets)} blocks, year-on-year\n")
+    log(f"markets: {len(markets)} blocks, {WINDOW}\n")
 
-    news = news_section(data)
+    if SKIP_NEWS:
+        previous = os.path.exists(OUT) and load("summary.js", "SUMMARY").get("news", [])
+        news = previous or []
+        log(f"news: reusing {len(news)} paragraphs (NEWSDESK_NEWS=skip)")
+    else:
+        news = news_section(data)
     ok = [n for n in news if n["text"]]
 
     write({

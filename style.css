@@ -31,16 +31,28 @@ body {
 
 /* ─────────────────────────────── header ─────────────────────────────── */
 
+/* The sticky header has to span the whole viewport, not the reading column.
+   It used to be 860px wide while the Markets panel is 1000px, so wider
+   content scrolled visibly past its edges. Full-bleed bar, inner content
+   constrained to the widest panel. */
 header {
   position: sticky;
   top: 0;
   z-index: 10;
-  max-width: 860px;
-  margin: 0 auto;
-  padding: 22px 0 12px;
+  margin: 0 -20px;
+  padding: 20px 20px 12px;
   background: var(--bg);
   border-bottom: 1px solid var(--border);
 }
+
+header > * {
+  max-width: 1000px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Anchored headings would otherwise land underneath it. */
+main { scroll-margin-top: 160px; }
 
 .bar {
   display: flex;
@@ -462,3 +474,10 @@ main {
 .brief-line.index .bl-name { color: var(--accent); font-weight: 500; }
 .brief-line.bond  .bl-name { color: #d3869b; }
 .brief-line .pct { font-size: 12.5px; }
+
+.brief-movers-label {
+  font-size: 9.5px; text-transform: uppercase; letter-spacing: .1em;
+  color: var(--fg-faint); margin: 7px 0 2px;
+}
+.brief-movers-label.up   { color: #b8bb26; }
+.brief-movers-label.down { color: #fb4934; }

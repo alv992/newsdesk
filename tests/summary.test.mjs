@@ -19,14 +19,21 @@ t.ok("every market block has figures",
 
 // The whole point of D20: numbers come from the same arithmetic as the
 // Markets tab, so the two can never disagree.
-const brief = w.SUMMARY.markets.flatMap((m) => m.movers.map((v) => [v.symbol, v.change]));
-const rows = new Map(w.MARKETS.rows.map((r) => [r.symbol, r.changes["1Y"]]));
+const win = w.SUMMARY.markets[0].window;
+t.ok("brief uses month on month", win === "1M", `(${win})`);
+
+const brief = w.SUMMARY.markets.flatMap((m) => [...m.risers, ...m.fallers].map((v) => [v.symbol, v.change]));
+const rows = new Map(w.MARKETS.rows.map((r) => [r.symbol, r.changes[win]]));
 t.ok("brief figures match the Markets tab exactly",
      brief.every(([sym, chg]) => rows.get(sym) === chg), `(${brief.length} movers checked)`);
 
-t.ok("movers are the largest moves",
-     w.SUMMARY.markets.every((m) =>
-       m.movers.every((v, i) => i === 0 || Math.abs(m.movers[i - 1].change) >= Math.abs(v.change))));
+t.ok("risers descend", w.SUMMARY.markets.every((m) =>
+     m.risers.every((v, i) => i === 0 || m.risers[i - 1].change >= v.change)));
+t.ok("fallers ascend from the worst", w.SUMMARY.markets.every((m) =>
+     m.fallers.every((v, i) => i === 0 || m.fallers[i - 1].change <= v.change)));
+t.ok("no stock is both a riser and a faller", w.SUMMARY.markets.every((m) => {
+     const up = new Set(m.risers.map((v) => v.symbol));
+     return m.fallers.every((v) => !up.has(v.symbol)); }));
 t.ok("bonds carry a yield and a change",
      w.SUMMARY.markets.flatMap((m) => m.bonds).every((b) => b.yield > 0 && b.change !== null));
 
