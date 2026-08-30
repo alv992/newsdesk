@@ -11,3 +11,6 @@ __pycache__/
 .venv/
 
 *.log
+
+# Test dependencies. The app itself has none.
+node_modules/

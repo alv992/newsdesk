@@ -53,6 +53,25 @@ Keep keywords specific. Single common words cause wrong tagging: `app` once
 put flood coverage in Technology via a feed's promo footer, `Meta` matched
 the Spanish noun *meta*, and `galaxy` matched the Samsung Galaxy.
 
+## Tests
+
+```bash
+npm install     # jsdom, once
+npm test
+```
+
+59 assertions across five suites. They load the real `index.html`, the real
+data files and the real `app.js` into jsdom and drive the page through the
+same clicks a person would make, so they exercise the actual filters rather
+than a mock of them.
+
+Requires `data.js` and `indicators.js` to exist — run the two fetchers first.
+
+`tests/visibility.test.mjs` is the one worth knowing about. It checks
+`getComputedStyle`, not `element.hidden`, because an earlier version passed
+while the controls it claimed were hidden sat plainly on screen: `.field`
+sets `display: flex`, which beats the browser's own `[hidden]` rule.
+
 ## Layout
 
 ```
@@ -64,6 +83,7 @@ indicators.toml  which series to track
 index.html       the page
 app.js           filtering, sorting, rendering
 style.css        Gruvbox Dark Soft
+tests/           jsdom suites, run with npm test
 ```
 
 `data.js` and `indicators.js` are generated and not committed.

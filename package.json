@@ -1,0 +1,13 @@
+{
+  "name": "newsdesk",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Tests for the Newsdesk page. The app itself has no dependencies.",
+  "scripts": {
+    "test": "node tests/run.mjs"
+  },
+  "devDependencies": {
+    "jsdom": "^30.0.1"
+  }
+}
