@@ -32,7 +32,7 @@ import httpx
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, "summary.js")
 OLLAMA = "http://localhost:11434/api/generate"
-MODEL = os.environ.get("NEWSDESK_MODEL", "gpt-oss:20b")
+MODEL = os.environ.get("NEWSDESK_MODEL", "llama3.2:3b")
 HOURS = 24
 MAX_TITLES = 45          # per category — a small model needs a short list
 PER_SOURCE = 4           # so no single feed writes the paragraph
@@ -102,19 +102,24 @@ def market_section(mkt):
 
 # ──────────────────────────── news, written ──────────────────────────────
 
-PROMPT = """You are writing one paragraph of a daily news brief.
-
-Below are {n} headlines published in the last 24 hours, in the category "{label}".
+PROMPT = """Below are {n} headlines from the last 24 hours, category "{label}".
 They are in English and Spanish.
 
-Write 3 to 4 sentences in English summarising what happened. Group related
-headlines together. Lead with whatever appears most often or matters most.
+Write 4 to 5 sentences in English summarising the day in this category.
+
+Cover the range, not just the biggest story. Group related headlines and
+mention several distinct stories. A reader should finish knowing roughly
+what happened today, not one thing in detail.
 
 Rules:
-- Use ONLY what is in the headlines. Do not add background, context or detail
-  that is not written below.
-- Do not invent numbers, names, dates or outcomes.
-- No preamble, no bullet points, no headings. Just the paragraph.
+- Use ONLY what is written in the headlines. Add no background, context,
+  numbers, names or outcomes that are not below.
+- Begin with the first thing that actually happened, naming whoever it
+  happened to. NEVER begin by referring to the category, the headlines, the
+  day, or this summary — no "News in this category", no "Headlines covered".
+- Never write vague filler like "there were reports on", "covered a range of
+  topics", or "in other news". Name the thing that happened.
+- No preamble, no bullet points, no headings. One paragraph.
 - If the headlines are too scattered to summarise, say so in one sentence.
 
 Headlines:
@@ -131,7 +136,7 @@ def write_paragraph(label, titles):
         # Ollama counts that against num_predict. At 320 the whole budget
         # went on reasoning and the response came back empty — every
         # paragraph blank, with the call reporting success.
-        "options": {"temperature": 0.2, "num_predict": 2200},
+        "options": {"temperature": 0.3, "num_predict": 2200},
     })
     r.raise_for_status()
     body = r.json()

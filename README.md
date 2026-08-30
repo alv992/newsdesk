@@ -88,7 +88,14 @@ produced differently on purpose:
 from the same arithmetic that fills the Markets tab, and a test asserts the
 two agree. If the model is unavailable the market half still publishes.
 
-Model is set with `NEWSDESK_MODEL`, default `gpt-oss:20b`.
+Model is set with `NEWSDESK_MODEL`, default `llama3.2:3b`. `gpt-oss:20b` was
+tried and rejected: it is a reasoning model, Ollama counts its thinking
+against the token budget, and Spanish input roughly doubles the reasoning.
+One run took 75 minutes and still produced nothing for the Spanish category.
+`llama3.2:3b` does the same five paragraphs in about 90 seconds.
+
+`NEWSDESK_NEWS=skip` reuses the previous paragraphs and recomputes only the
+market half — a second rather than minutes.
 
 ## Markets
 
