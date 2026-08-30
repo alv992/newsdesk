@@ -1,0 +1,103 @@
+# Category rules.
+#
+# One category per story. First block to match wins, so ORDER IS PRIORITY.
+#
+# A story matching nothing falls back on where it is:
+#   region spain  -> Local politics   (domestic news, not world affairs)
+#   anything else -> Geopolitics      (the international arena)
+#
+# Matching is case-insensitive and on whole words only, so "PP" does not
+# match "supply" and "AI" does not match "said".
+#
+# Order below: Technology, Science and Economic/Finance first because their
+# vocabulary is specific. Local last, so a Spanish inflation story lands in
+# Finance rather than Local.
+#
+# Keep terms specific. Single generic words cause wrong tagging — "app" once
+# put flood coverage in Technology via a feed's promo footer, "Meta" matched
+# the Spanish noun *meta*, and "galaxy" matched the Samsung Galaxy.
+
+[technology]
+label = "Technology"
+words = [
+  "AI", "artificial intelligence", "machine learning", "LLM", "chatbot",
+  "OpenAI", "Anthropic", "DeepMind", "Nvidia", "GPU", "semiconductor",
+  "chipmaker", "chip export", "TSMC", "data centre", "data center",
+  "cloud computing", "software", "open source", "algorithm", "smartphone",
+  "cyberattack", "ransomware", "data breach", "encryption", "malware",
+  "quantum computing", "robotics", "self-driving",
+  "Big Tech", "Silicon Valley", "Meta Platforms", "Facebook", "Microsoft",
+  "inteligencia artificial", "ciberataque", "ciberseguridad",
+]
+
+[science]
+label = "Science"
+words = [
+  # research
+  "study published", "peer-reviewed", "researchers found", "researchers say",
+  "scientists", "scientific study", "clinical trial", "in the journal",
+  "Nature study", "preprint", "laboratory", "experiment",
+  # life sciences and health
+  "vaccine", "virus", "outbreak", "epidemic", "antibiotic",
+  "cancer", "genome", "genome sequencing", "gene therapy", "stem cell", "microbiome",
+  "species", "biodiversity", "extinction", "fossil", "evolution",
+  # physical sciences and space
+  "telescope", "galaxies", "Milky Way", "asteroid", "exoplanet", "black hole",
+  "spacecraft", "satellite launch", "Mars", "lunar", "orbit",
+  "particle physics", "CERN", "fusion reactor", "superconductor",
+  # climate and earth
+  "climate change", "global warming", "greenhouse gas", "emissions",
+  "carbon dioxide", "sea level rise", "ice sheet", "deforestation",
+  "renewable energy", "solar power", "wind farm",
+  # Spanish
+  "investigadores", "científicos", "estudio publicado", "revista Nature",
+  "cambio climático", "emisiones", "vacuna", "ensayo clínico",
+  "biodiversidad", "telescopio", "agujero negro",
+]
+
+[economic-finance]
+label = "Economic/Finance"
+words = [
+  # policy and macro
+  "inflation", "deflation", "interest rate", "central bank", "ECB",
+  "Federal Reserve", "monetary policy", "fiscal policy", "recession",
+  "GDP", "economic growth", "unemployment rate", "budget deficit",
+  "public debt", "sovereign debt", "credit rating", "bailout", "austerity",
+  "cost of living", "consumer prices", "purchasing power",
+  # trade
+  "tariff", "tariffs", "trade war", "trade deal", "trade deficit",
+  "export controls", "supply chain",
+  # markets
+  "stock market", "stocks", "share price", "shareholders", "equities",
+  "bond yield", "bond market", "government bonds", "IPO",
+  "merger", "acquisition", "takeover", "buyout", "earnings",
+  "quarterly profit", "revenue", "bankruptcy", "insolvency", "layoffs",
+  "hedge fund", "private equity", "venture capital", "investors",
+  "IBEX", "Nasdaq", "Dow Jones", "FTSE", "Euro Stoxx",
+  "oil price", "gas price", "commodity prices", "exchange rate",
+  # sectors and everyday money
+  "banking sector", "investment bank", "mortgage", "housing market",
+  "energy prices", "minimum wage", "wages", "pensions", "taxation",
+  "corporate tax", "subsidy", "subsidies",
+  # Spanish
+  "inflación", "deflación", "tipos de interés", "banco central",
+  "prima de riesgo", "deuda pública", "déficit", "PIB", "economía",
+  "recesión", "bolsa española", "mercados financieros", "cotización",
+  "beneficios empresariales", "facturación", "quiebra", "despidos",
+  "inversores", "hipoteca", "vivienda", "alquiler", "salarios", "SMI",
+  "pensiones", "impuestos", "fiscalidad", "IPC", "paro", "desempleo",
+  "precio de la luz", "coste de la vida", "poder adquisitivo",
+]
+
+[local-politics]
+label = "Local"
+words = [
+  "Congreso", "Senado", "Moncloa", "Zarzuela", "Ferraz", "Génova",
+  "PSOE", "PP", "Vox", "Sumar", "Podemos", "ERC", "Junts", "Bildu", "PNV",
+  "Sánchez", "Feijóo", "Abascal", "Puigdemont", "Yolanda Díaz", "Ayuso",
+  "Gobierno español", "Consejo de Ministros", "Cortes", "diputados",
+  "elecciones generales", "elecciones autonómicas", "moción de censura",
+  "investidura", "amnistía", "CGPJ", "Junta Electoral",
+  "presupuestos generales", "Generalitat", "Xunta", "Lehendakari",
+  "Spanish government", "Spanish parliament", "Spanish election",
+]

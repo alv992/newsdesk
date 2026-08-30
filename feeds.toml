@@ -1,0 +1,391 @@
+# Newsdesk sources.
+#
+# tier   1 = wire/primary, 2 = quality outlet, 3 = regional/specialist, 4 = unvetted
+# category  optional. A feed with one obvious topic declares it here. Used ONLY
+#           when no keyword in categories.toml matches. Keywords always win.
+# region world | europe | spain  — a fallback only; the real region comes from
+#                                  the countries found in the story text.
+#
+# Rule: if adding a feed wouldn't change a decision you'd make, leave it out.
+
+# ─────────────────────────────── World ───────────────────────────────
+
+[[feed]]
+name = "Reuters"
+url = "https://news.google.com/rss/search?q=when:2d+source:Reuters&hl=en-US&gl=US&ceid=US:en"
+tier = 1
+region = "world"
+
+[[feed]]
+name = "AP"
+url = "https://news.google.com/rss/search?q=when:2d+source:%22Associated+Press%22&hl=en-US&gl=US&ceid=US:en"
+tier = 1
+region = "world"
+
+[[feed]]
+name = "AFP"
+url = "https://news.google.com/rss/search?q=when:2d+source:AFP&hl=en-US&gl=US&ceid=US:en"
+tier = 1
+region = "world"
+
+[[feed]]
+name = "BBC World"
+url = "https://feeds.bbci.co.uk/news/world/rss.xml"
+tier = 1
+region = "world"
+
+[[feed]]
+name = "Al Jazeera"
+url = "https://www.aljazeera.com/xml/rss/all.xml"
+tier = 2
+region = "world"
+
+[[feed]]
+name = "Guardian World"
+url = "https://www.theguardian.com/world/rss"
+tier = 2
+region = "world"
+
+[[feed]]
+name = "NPR World"
+url = "https://feeds.npr.org/1004/rss.xml"
+tier = 2
+region = "world"
+
+[[feed]]
+name = "Deutsche Welle"
+url = "https://rss.dw.com/rdf/rss-en-world"
+tier = 2
+region = "world"
+
+[[feed]]
+name = "ReliefWeb"
+url = "https://reliefweb.int/updates/rss.xml"
+tier = 1
+region = "world"
+
+[[feed]]
+name = "GDACS"
+url = "https://www.gdacs.org/xml/rss.xml"
+tier = 1
+region = "world"
+
+# ─────────────────────────────── Europe ──────────────────────────────
+
+[[feed]]
+name = "France 24"
+url = "https://www.france24.com/en/europe/rss"
+tier = 2
+region = "europe"
+
+[[feed]]
+name = "Euronews"
+url = "https://www.euronews.com/rss?level=theme&name=news"
+tier = 3
+region = "europe"
+
+[[feed]]
+name = "Politico Europe"
+url = "https://www.politico.eu/feed/"
+tier = 2
+region = "europe"
+
+[[feed]]
+name = "EUobserver"
+url = "https://euobserver.com/rss"
+tier = 3
+region = "europe"
+
+# ─────────────────────────────── Spain ───────────────────────────────
+
+[[feed]]
+name = "El País"
+url = "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/portada"
+tier = 2
+region = "spain"
+
+[[feed]]
+name = "El País (EN)"
+url = "https://feeds.elpais.com/mrss-s/pages/ep/site/english.elpais.com/portada"
+tier = 2
+region = "spain"
+
+[[feed]]
+name = "elDiario.es"
+url = "https://www.eldiario.es/rss/"
+tier = 3
+region = "spain"
+
+[[feed]]
+name = "Europa Press"
+url = "https://www.europapress.es/rss/rss.aspx"
+tier = 2
+region = "spain"
+
+[[feed]]
+name = "El Confidencial"
+url = "https://rss.elconfidencial.com/espana/"
+tier = 3
+region = "spain"
+
+[[feed]]
+name = "RTVE"
+url = "https://api2.rtve.es/rss/temas_noticias.xml"
+tier = 2
+region = "spain"
+
+[[feed]]
+name = "20minutos"
+url = "https://www.20minutos.es/rss/"
+tier = 3
+region = "spain"
+
+# ────────────────────────── Economy & markets ────────────────────────
+
+[[feed]]
+name = "Expansión"
+url = "https://e00-expansion.uecdn.es/rss/portada.xml"
+tier = 3
+region = "spain"
+category = "economic-finance"
+
+[[feed]]
+name = "Economist Finance"
+url = "https://www.economist.com/finance-and-economics/rss.xml"
+tier = 2
+region = "world"
+category = "economic-finance"
+
+[[feed]]
+name = "CNBC World"
+url = "https://www.cnbc.com/id/100727362/device/rss/rss.html"
+tier = 3
+region = "world"
+category = "economic-finance"
+
+[[feed]]
+name = "FT"
+url = "https://www.ft.com/rss/home"
+tier = 2
+region = "world"
+category = "economic-finance"
+
+# ─────────────────────────────── Tech ────────────────────────────────
+
+[[feed]]
+name = "Ars Technica"
+url = "https://feeds.arstechnica.com/arstechnica/index"
+tier = 2
+region = "world"
+category = "technology"
+
+[[feed]]
+name = "The Verge"
+url = "https://www.theverge.com/rss/index.xml"
+tier = 3
+region = "world"
+category = "technology"
+
+[[feed]]
+name = "Hacker News"
+url = "https://hnrss.org/frontpage?points=150"
+tier = 4
+region = "world"
+category = "technology"
+
+# ────────────────────────────── Science ──────────────────────────────
+
+[[feed]]
+name = "Nature"
+url = "https://www.nature.com/nature.rss"
+tier = 1
+region = "world"
+category = "science"
+
+[[feed]]
+name = "Science Magazine"
+url = "https://www.science.org/rss/news_current.xml"
+tier = 1
+region = "world"
+category = "science"
+
+[[feed]]
+name = "Quanta Magazine"
+url = "https://api.quantamagazine.org/feed/"
+tier = 2
+region = "world"
+category = "science"
+
+[[feed]]
+name = "Phys.org"
+url = "https://phys.org/rss-feed/"
+tier = 3
+region = "world"
+category = "science"
+
+[[feed]]
+name = "NASA"
+url = "https://www.nasa.gov/news-release/feed/"
+tier = 1
+region = "world"
+category = "science"
+
+[[feed]]
+name = "ESA"
+url = "https://www.esa.int/rssfeed/Our_Activities/Space_News"
+tier = 1
+region = "europe"
+category = "science"
+
+[[feed]]
+name = "Carbon Brief"
+url = "https://www.carbonbrief.org/feed/"
+tier = 2
+region = "world"
+category = "science"
+
+[[feed]]
+name = "WHO"
+url = "https://www.who.int/rss-feeds/news-english.xml"
+tier = 1
+region = "world"
+category = "science"
+
+[[feed]]
+name = "El País Ciencia"
+url = "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/ciencia/portada"
+tier = 2
+region = "spain"
+category = "science"
+
+# ──────────────────────── Europe (national) ──────────────────────────
+
+[[feed]]
+name = "Le Monde (EN)"
+url = "https://www.lemonde.fr/en/rss/une.xml"
+tier = 2
+region = "europe"
+
+[[feed]]
+name = "Der Spiegel (EN)"
+url = "https://www.spiegel.de/international/index.rss"
+tier = 2
+region = "europe"
+
+[[feed]]
+name = "Balkan Insight"
+url = "https://balkaninsight.com/feed/"
+tier = 3
+region = "europe"
+
+[[feed]]
+name = "The Local Spain"
+url = "https://feeds.thelocal.com/rss/es"
+tier = 3
+region = "spain"
+
+# ─────────────────────────────── Asia ────────────────────────────────
+
+[[feed]]
+name = "SCMP"
+url = "https://www.scmp.com/rss/91/feed"
+tier = 3
+region = "world"
+
+[[feed]]
+name = "The Hindu"
+url = "https://www.thehindu.com/news/international/feeder/default.rss"
+tier = 3
+region = "world"
+
+[[feed]]
+name = "Japan Times"
+url = "https://www.japantimes.co.jp/feed/"
+tier = 3
+region = "world"
+
+[[feed]]
+name = "Straits Times"
+url = "https://www.straitstimes.com/news/world/rss.xml"
+tier = 3
+region = "world"
+
+# ────────────────────────────── Americas ─────────────────────────────
+
+[[feed]]
+name = "Clarín"
+url = "https://www.clarin.com/rss/lo-ultimo/"
+tier = 3
+region = "world"
+
+[[feed]]
+name = "Americas Quarterly"
+url = "https://www.americasquarterly.org/feed/"
+tier = 2
+region = "world"
+
+# ───────────────────────────── Tech (more) ───────────────────────────
+
+[[feed]]
+name = "MIT Tech Review"
+url = "https://www.technologyreview.com/feed/"
+tier = 2
+region = "world"
+category = "technology"
+
+[[feed]]
+name = "Xataka"
+url = "https://www.xataka.com/index.xml"
+tier = 3
+region = "spain"
+category = "technology"
+
+# ────────────────────────── EU institutions ──────────────────────────
+# Eurostat's own RSS (statistics-update.rss) is a machine feed — ~250 items
+# a day of "Dataset: updated data". Useless as news. This picks up coverage
+# of their actual releases instead. The raw indicator values belong in the
+# Monitor tab as a data layer, not here as stories.
+
+[[feed]]
+name = "Eurostat"
+url = "https://news.google.com/rss/search?q=Eurostat+when:7d&hl=en-US&gl=US&ceid=US:en"
+tier = 1
+region = "europe"
+category = "economic-finance"
+
+# ─────────────────── Social apps and channels · tier 4 ───────────────
+# Hidden when the Sources filter is set to News only. See D15.
+#
+# Telegram goes through the public RSS-Bridge instance, which puts a third
+# party in the path — if rss-bridge.org is down, these are down. Self-host
+# it on the Pi to remove that.
+
+[[feed]]
+name = "Bellingcat (TG)"
+url = "https://rss-bridge.org/bridge01/?action=display&bridge=TelegramBridge&username=bellingcat&format=Atom"
+tier = 4
+region = "world"
+
+[[feed]]
+name = "Ukraine NOW (TG)"
+url = "https://rss-bridge.org/bridge01/?action=display&bridge=TelegramBridge&username=ukrainenowenglish&format=Atom"
+tier = 4
+region = "europe"
+
+[[feed]]
+name = "Bellingcat (Bsky)"
+url = "https://bsky.app/profile/bellingcat.com/rss"
+tier = 4
+region = "world"
+
+[[feed]]
+name = "#ukraine (Mastodon)"
+url = "https://mastodon.social/tags/ukraine.rss"
+tier = 4
+region = "europe"
+
+[[feed]]
+name = "#osint (Mastodon)"
+url = "https://mastodon.social/tags/osint.rss"
+tier = 4
+region = "world"

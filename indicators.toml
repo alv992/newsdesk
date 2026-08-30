@@ -1,0 +1,92 @@
+# Statistical indicators. Numbers over time, not stories.
+#
+# agency  worldbank | ecb        (both keyless)
+# series  the agency's own code
+# geo     ISO country code, or EUU / WLD for World Bank aggregates
+# label   what it says on the tile
+#
+# These publish monthly to yearly, so this runs on its own daily timer —
+# not with the hourly news fetch. See D14.
+
+# ─────────────────────── ECB · euro area, monthly ────────────────────
+
+[[indicator]]
+agency = "ecb"
+series = "ICP/M.U2.N.000000.4.ANR"
+label = "Euro area inflation"
+geo = "EA"
+unit = "%"
+
+[[indicator]]
+agency = "ecb"
+series = "EXR/D.USD.EUR.SP00.A"
+label = "EUR / USD"
+geo = "EA"
+unit = ""
+
+[[indicator]]
+agency = "ecb"
+series = "FM/D.U2.EUR.4F.KR.MRR_FR.LEV"
+label = "ECB main rate"
+geo = "EA"
+unit = "%"
+
+[[indicator]]
+agency = "ecb"
+series = "EXR/D.GBP.EUR.SP00.A"
+label = "EUR / GBP"
+geo = "EA"
+unit = ""
+
+# ──────────────────── World Bank · Spain, yearly ─────────────────────
+
+[[indicator]]
+agency = "worldbank"
+series = "NY.GDP.MKTP.KD.ZG"
+label = "GDP growth"
+geo = "ES"
+unit = "%"
+
+[[indicator]]
+agency = "worldbank"
+series = "SL.UEM.TOTL.ZS"
+label = "Unemployment"
+geo = "ES"
+unit = "%"
+
+[[indicator]]
+agency = "worldbank"
+series = "FP.CPI.TOTL.ZG"
+label = "Inflation"
+geo = "ES"
+unit = "%"
+
+# ──────────────────── World Bank · EU and world ──────────────────────
+
+[[indicator]]
+agency = "worldbank"
+series = "NY.GDP.MKTP.KD.ZG"
+label = "GDP growth"
+geo = "EUU"
+unit = "%"
+
+[[indicator]]
+agency = "worldbank"
+series = "SL.UEM.TOTL.ZS"
+label = "Unemployment"
+geo = "EUU"
+unit = "%"
+
+[[indicator]]
+agency = "worldbank"
+series = "NY.GDP.MKTP.KD.ZG"
+label = "GDP growth"
+geo = "WLD"
+unit = "%"
+
+[[indicator]]
+agency = "worldbank"
+series = "FP.CPI.TOTL.ZG"
+label = "Inflation"
+geo = "WLD"
+unit = "%"

@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Newsdesk</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <div class="bar">
+    <h1>Newsdesk</h1>
+    <p id="meta"></p>
+  </div>
+
+  <nav id="tabs" class="tabs" aria-label="Sections"></nav>
+
+  <div id="feed-controls">
+    <nav id="cats" class="cats" aria-label="Category"></nav>
+
+    <div class="subfilters">
+      <label class="field">
+        <span>Region</span>
+        <select id="region"></select>
+      </label>
+
+      <label class="field">
+        <span>Country</span>
+        <select id="country"></select>
+      </label>
+
+      <div class="field">
+        <span>Period</span>
+        <div id="time" class="seg" role="group" aria-label="Time window"></div>
+      </div>
+
+      <div class="field">
+        <span>Sources</span>
+        <div id="sources" class="seg" role="group" aria-label="Source trust"></div>
+      </div>
+
+      <div class="field">
+        <span>Show</span>
+        <div id="view" class="seg" role="group" aria-label="Read state"></div>
+      </div>
+
+      <div class="field">
+        <span>Per load</span>
+        <div id="batch" class="seg" role="group" aria-label="Batch size"></div>
+      </div>
+
+      <button id="reset" class="reset" type="button">Reset</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section id="panel-feed">
+    <div id="list"></div>
+    <p id="end"></p>
+  </section>
+
+  <section id="panel-data" hidden>
+    <div id="tiles"></div>
+  </section>
+</main>
+
+<!-- Loaded as scripts, not fetched: fetch() is blocked on file:// URLs. See D7. -->
+<script src="data.js"></script>
+<script src="indicators.js"></script>
+<script src="app.js"></script>
+
+</body>
+</html>
