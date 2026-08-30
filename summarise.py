@@ -30,9 +30,12 @@ from datetime import datetime, timedelta, timezone
 import httpx
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-OUT = os.path.join(HERE, "summary.js")
+OUT = os.path.join(HERE, os.environ.get("NEWSDESK_OUT", "summary.js"))
 OLLAMA = "http://localhost:11434/api/generate"
 MODEL = os.environ.get("NEWSDESK_MODEL", "llama3.2:3b")
+# A runaway model must not hold the 07:00 job open. One gpt-oss call
+# ran for 69 minutes before answering.
+CALL_TIMEOUT = int(os.environ.get("NEWSDESK_TIMEOUT", "420"))
 HOURS = 24
 MAX_TITLES = 45          # per category — a small model needs a short list
 PER_SOURCE = 4           # so no single feed writes the paragraph
@@ -128,7 +131,7 @@ Headlines:
 
 def write_paragraph(label, titles):
     body = "\n".join(f"- {t}" for t in titles)
-    r = httpx.post(OLLAMA, timeout=600, json={
+    r = httpx.post(OLLAMA, timeout=CALL_TIMEOUT, json={
         "model": MODEL,
         "prompt": PROMPT.format(n=len(titles), label=label, titles=body),
         "stream": False,
@@ -216,6 +219,7 @@ def main():
     ok = [n for n in news if n["text"]]
 
     write({
+        "stories_seen": len(data["stories"]),
         "generated": datetime.now(timezone.utc).isoformat(),
         "day": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
         "model": MODEL,
