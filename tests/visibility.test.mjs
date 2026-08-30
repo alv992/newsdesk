@@ -40,16 +40,27 @@ t.ok("controls come back", display(sources) !== "none" && display(cats) !== "non
 const header = d.querySelector("header");
 t.ok("header is sticky", w.getComputedStyle(header).position === "sticky",
      w.getComputedStyle(header).position);
-t.ok("header is not width-limited itself",
-     w.getComputedStyle(header).maxWidth === "none" || w.getComputedStyle(header).maxWidth === "",
-     `(${w.getComputedStyle(header).maxWidth})`);
+// The header must be exactly as wide as the panel under it, on every tab —
+// otherwise wider content scrolls past its edges as you go down.
+const panelVar = () => d.documentElement.style.getPropertyValue("--panel");
+for (const [name, expected] of [["summary", "820px"], ["feed", "860px"],
+                                ["reports", "860px"], ["markets", "1040px"],
+                                ["data", "860px"]]) {
+  tab(name);
+  t.ok(`${name}: header and panel share a width`, panelVar() === expected,
+       `(--panel ${panelVar()})`);
+}
+tab("feed");
 // jsdom does not resolve var() in getComputedStyle, so check the rule.
 // A transparent sticky header lets content show through as it scrolls.
 const css = fs.readFileSync(`${ROOT}/style.css`, "utf8");
-const headerRule = css.slice(css.indexOf("\nheader {"), css.indexOf("header > *"));
+const headerRule = css.slice(css.indexOf("\nheader {"), css.indexOf("/* Anchored headings"));
 t.ok("header declares an opaque background", /background:\s*var\(--bg\)/.test(headerRule));
-t.ok("inner blocks are constrained instead",
-     w.getComputedStyle(d.getElementById("tabs")).maxWidth === "1000px",
-     w.getComputedStyle(d.getElementById("tabs")).maxWidth);
+t.ok("header width follows the panel variable", /max-width:\s*var\(--panel\)/.test(headerRule));
+t.ok("header stays sticky across tabs", ["summary", "markets", "data"].every((n) => {
+  tab(n);
+  return w.getComputedStyle(d.querySelector("header")).position === "sticky";
+}));
+tab("feed");
 
 t.done();

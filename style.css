@@ -1,6 +1,11 @@
 /* Newsdesk — Gruvbox Dark Soft, matching the desktop. */
 
 :root {
+  /* Width of the content column. Set per tab in app.js so the header and the
+     panel underneath it are always the same width — content then scrolls
+     under the header, never past its edges. */
+  --panel: 860px;
+
   --bg:       #32302f;
   --bg-card:  #3c3836;
   --bg-hover: #45403d;
@@ -31,24 +36,16 @@ body {
 
 /* ─────────────────────────────── header ─────────────────────────────── */
 
-/* The sticky header has to span the whole viewport, not the reading column.
-   It used to be 860px wide while the Markets panel is 1000px, so wider
-   content scrolled visibly past its edges. Full-bleed bar, inner content
-   constrained to the widest panel. */
 header {
   position: sticky;
   top: 0;
   z-index: 10;
-  margin: 0 -20px;
-  padding: 20px 20px 12px;
+  max-width: var(--panel);
+  margin: 0 auto;
+  padding: 20px 0 12px;
   background: var(--bg);
   border-bottom: 1px solid var(--border);
-}
-
-header > * {
-  max-width: 1000px;
-  margin-left: auto;
-  margin-right: auto;
+  transition: max-width .18s ease;
 }
 
 /* Anchored headings would otherwise land underneath it. */
@@ -162,7 +159,7 @@ select {
 /* ─────────────────────────────── cards ──────────────────────────────── */
 
 main {
-  max-width: 860px;
+  max-width: var(--panel);
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -238,7 +235,7 @@ main {
 .sentinel { height: 1px; }
 
 #end {
-  max-width: 860px;
+  max-width: var(--panel);
   margin: 20px auto 0;
   text-align: center;
   font-size: 12px;
@@ -286,7 +283,7 @@ main {
 /* ─────────────────────────── data tab tiles ─────────────────────────── */
 
 #tiles {
-  max-width: 860px;
+  max-width: var(--panel);
   margin: 0 auto;
   padding-top: 22px;
   display: flex;
@@ -361,7 +358,7 @@ main {
 /* ─────────────────────────────── markets ────────────────────────────── */
 
 .market-bar {
-  max-width: 1000px;
+  max-width: var(--panel);
   margin: 0 auto;
   padding: 16px 0 4px;
   display: flex;
@@ -370,7 +367,7 @@ main {
   gap: 8px 18px;
 }
 
-#rows { max-width: 1000px; margin: 0 auto; padding-top: 18px;
+#rows { max-width: var(--panel); margin: 0 auto; padding-top: 18px;
         display: flex; flex-direction: column; gap: 26px; }
 
 .mtable { display: flex; flex-direction: column; }
@@ -431,7 +428,7 @@ main {
 
 /* ─────────────────────────────── summary ────────────────────────────── */
 
-#brief { max-width: 820px; margin: 0 auto; padding-top: 24px; }
+#brief { max-width: var(--panel); margin: 0 auto; padding-top: 24px; }
 
 .brief-head { margin-bottom: 26px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
 .brief-head h2 { margin: 0; font-size: 21px; font-weight: 600; letter-spacing: -0.01em; }

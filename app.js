@@ -29,6 +29,16 @@ const SOCIAL_TIER = 4;
 // Indicator groups follow the stated order of interest: world outwards in.
 const GEO_ORDER = ["World", "European Union", "Euro area", "Spain"];
 
+// Content width per tab. The header reads the same value, so it is always
+// exactly as wide as what is underneath it.
+const PANEL_WIDTH = {
+  summary: "820px",   // prose — a reading column
+  feed:    "860px",
+  reports: "860px",
+  data:    "860px",
+  markets: "1040px",  // a table with five columns needs the room
+};
+
 const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 // ─────────────────────────────── storage ───────────────────────────────
@@ -570,6 +580,7 @@ function showTab(name) {
   state.tab = name;
   store.set("tab", name);
 
+  document.documentElement.style.setProperty("--panel", PANEL_WIDTH[name] || "860px");
   for (const [key, panel] of Object.entries(panels)) panel.hidden = key !== name;
   feedControls.hidden = name !== "feed" && name !== "reports";
   for (const node of document.querySelectorAll(".only-feed")) node.hidden = name !== "feed";
