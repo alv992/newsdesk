@@ -16,7 +16,7 @@ Built against the spec in the Obsidian vault under
 ```bash
 uv run fetch.py          # ~61 feeds, about 6 seconds
 uv run indicators.py     # 11 macro series from the World Bank and ECB
-uv run markets.py        # 392 securities across 12 markets, about 60 seconds
+uv run markets.py        # 412 securities across 13 markets, about 60 seconds
 xdg-open index.html
 ```
 
@@ -61,7 +61,7 @@ npm install     # jsdom, once
 npm test
 ```
 
-74 assertions across six suites. They load the real `index.html`, the real
+82 assertions across six suites. They load the real `index.html`, the real
 data files and the real `app.js` into jsdom and drive the page through the
 same clicks a person would make, so they exercise the actual filters rather
 than a mock of them.
@@ -80,12 +80,36 @@ sets `display: flex`, which beats the browser's own `[hidden]` rule.
 ranking** — largest by market capitalisation first — and `markets.py` keeps
 the top 35 per market.
 
+Rows within a market run **indices, then bonds, then stocks**, and the
+Markets tab filters on each.
+
 That order is curated by hand. Yahoo no longer exposes market cap on any
 keyless endpoint: it is absent from the chart metadata, and both
 `quoteSummary` and `v7/quote` answer 401 without a crumb. Ranking by price
 times volume was the alternative, but that is turnover rather than size — a
 cheap, heavily traded stock would outrank a large one. The order drifts;
 re-check it once or twice a year.
+
+### Bond yields
+
+Government bonds come from the **ECB**, not Yahoo — keyless, and the only
+place carrying comparable sovereign yields across Europe. US treasuries come
+from Yahoo.
+
+**Change is in basis points, not percent.** A yield moving 3.0 to 3.5 is
++50bp; calling it +16.7% would be arithmetically correct and useless.
+
+Three resolutions, and each window is counted in the right unit:
+
+| Series | Resolution | Effect |
+|---|---|---|
+| Yahoo `^TNX` etc | business-daily | every window |
+| ECB AAA curve | business-daily | every window |
+| ECB national (Maastricht) | **monthly** | DoD and 1W are blank |
+
+Blank is the honest answer for a monthly series — inventing a daily figure
+would not be. The UK is absent because the ECB stopped collecting after
+Brexit and the series ends in January 2020.
 
 ## Layout
 

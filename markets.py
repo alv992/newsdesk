@@ -30,6 +30,7 @@ import httpx
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, "markets.js")
 API = "https://query1.finance.yahoo.com/v8/finance/chart/"
+ECB = "https://data-api.ecb.europa.eu/service/data/"
 UA = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) newsdesk/0.1"}
 TIMEOUT = 25
 WORKERS = 4          # gentle: this is an undocumented endpoint
@@ -63,6 +64,25 @@ def log(msg):
     print(msg, file=sys.stderr)
 
 
+def ecb_series(key, n):
+    """ECB SDMX-JSON -> [(period, value)] oldest first."""
+    r = httpx.get(f"{ECB}{key}?format=jsondata&lastNObservations={n}",
+                  timeout=TIMEOUT, headers=UA, follow_redirects=True)
+    r.raise_for_status()
+    j = r.json()
+    ser = j["dataSets"][0]["series"]
+    if not ser:
+        raise ValueError("no series")
+    obs = next(iter(ser.values()))["observations"]
+    periods = j["structure"]["dimensions"]["observation"][0]["values"]
+    out = [(periods[int(k)]["id"], float(v[0]))
+           for k, v in sorted(obs.items(), key=lambda kv: int(kv[0]))
+           if v and v[0] is not None]
+    if not out:
+        raise ValueError("no observations")
+    return out
+
+
 def series(symbol, rng, interval):
     """One Yahoo chart request -> [(timestamp, close)], nulls dropped."""
     r = httpx.get(f"{API}{symbol.replace('^', '%5E')}?range={rng}&interval={interval}",
@@ -84,9 +104,75 @@ def pct(now, then):
     return round((now - then) / then * 100, 2) if then else None
 
 
+def fetch_bond(job):
+    """Government bond yields. Change is in basis points, not percent: a
+    yield moving 3.0 to 3.5 is +50bp, and calling that +16.7% would be
+    arithmetically true and useless.
+
+    Three resolutions, and the window has to be counted in the right unit:
+      Yahoo ^TNX etc     business-daily
+      ECB YC curve       business-daily
+      ECB IRS national   monthly — so DoD and 1W do not exist
+    """
+    key, name, market, kind, rank = job
+
+    long = None
+    if key.startswith("^"):                      # US treasuries, via Yahoo
+        points, _ = series(key, "5y", "1d")
+        long, _ = series(key, "max", "1mo")      # 5Y and All need real depth
+        since = str(datetime.fromtimestamp(long[0][0], timezone.utc).year)
+        daily = True
+    elif "/B." in key:                           # ECB euro area AAA curve
+        points = ecb_series(key, 6000)           # the curve starts in 2004
+        daily, since = True, points[0][0][:4]
+    else:                                        # ECB national, monthly
+        points = ecb_series(key, 400)
+        daily, since = False, points[0][0][:4]
+
+    last = points[-1][1]
+
+    # How many observations back each window is, at this resolution.
+    BUSINESS_DAYS = {"DoD": 1, "1W": 5, "1M": 21, "3M": 63, "6M": 126,
+                     "1Y": 251, "2Y": 502, "5Y": 1255}
+    MONTHS = {"1M": 1, "3M": 3, "6M": 6, "1Y": 12, "2Y": 24, "5Y": 60}
+
+    changes = {}
+    for label, _which, _back in WINDOWS:
+        if label == "All":
+            oldest = (long or points)[0][1]
+            changes[label] = round((last - oldest) * 100, 1)
+            continue
+
+        step = (BUSINESS_DAYS if daily else MONTHS).get(label)
+        if step is not None and len(points) > step:
+            changes[label] = round((last - points[-1 - step][1]) * 100, 1)
+        elif long and (m := MONTHS.get(label)) and len(long) > m:
+            changes[label] = round((last - long[-1 - m][1]) * 100, 1)   # fall back to monthly
+
+    return {
+        "symbol": key if key.startswith("^") else key.split("/")[-1][:24],
+        "name": name,
+        "market": market,
+        "kind": kind,
+        "rank": rank,
+        "metric": "bp",
+        "currency": "%",
+        "price": round(last, 3),
+        "changes": changes,
+        "spark": [round(v, 4) for _, v in points[-SPARK_POINTS:]],
+        "since": since,
+    }, None
+
+
 def fetch_one(job):
     """Never raises. One bad symbol must not lose the rest."""
     sym, name, market, kind, rank = job
+    if kind == "bond":
+        try:
+            return fetch_bond(job)
+        except Exception as e:
+            code = getattr(getattr(e, "response", None), "status_code", "")
+            return None, (name, f"{type(e).__name__} {code}".strip())
     try:
         daily, meta = series(sym, "1y", "1d")
         monthly, _ = series(sym, "max", "1mo")
@@ -109,8 +195,9 @@ def fetch_one(job):
             "symbol": sym,
             "name": name,
             "market": market,
-            "kind": kind,                     # index | stock
+            "kind": kind,                     # index | stock | bond
             "rank": rank,                     # position by market cap, largest = 0
+            "metric": "pct",
             "currency": meta.get("currency", ""),
             "price": round(last, 4),
             "changes": changes,
@@ -155,6 +242,8 @@ def main():
             stocks = stocks[:MAX_STOCKS]
         for rank, (sym, name) in enumerate(stocks):
             jobs.append((sym, name, m["id"], "stock", rank))
+        for rank, (key, name) in enumerate(m.get("bonds", {}).items()):
+            jobs.append((key, name, m["id"], "bond", rank))
 
     log(f"{len(jobs)} symbols across {len(markets)} markets\n")
     t0 = time.time()
@@ -169,7 +258,8 @@ def main():
         else:
             rows.append(row)
 
-    rows.sort(key=lambda r: (r["market"], r["kind"] != "index", r["rank"]))
+    order = {"index": 0, "bond": 1, "stock": 2}   # index, then bonds, then stocks
+    rows.sort(key=lambda r: (r["market"], order[r["kind"]], r["rank"]))
     write(rows, failed, markets)
     log(f"\n{len(rows)} symbols · {len(failed)} failed · {time.time() - t0:.0f}s")
 

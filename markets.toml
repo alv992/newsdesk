@@ -83,3 +83,23 @@ stocks = { "D05.SI" = "DBS Group", "O39.SI" = "OCBC", "U11.SI" = "UOB", "Z74.SI"
 id = "other"
 label = "Other markets"
 index = { "^GSPTSE" = "TSX (Canada)", "^AXJO" = "ASX 200 (Australia)", "^SSMI" = "SMI (Switzerland)", "^AEX" = "AEX (Netherlands)", "^BVSP" = "Bovespa (Brazil)", "^KS11" = "KOSPI (South Korea)", "^TWII" = "TAIEX (Taiwan)", "^MXX" = "IPC (Mexico)" }
+
+# ─────────────────────── Government bond yields ──────────────────────
+# Source is the ECB, not Yahoo — keyless, and the only place that carries
+# comparable sovereign yields across Europe.
+#
+# National series are the Maastricht convergence criterion: 10-year
+# benchmark yields, MONTHLY. So the daily windows (DoD, 1W) are blank for
+# them — the data has no daily resolution and inventing one would be a lie.
+# The euro area AAA curve is business-daily and fills every window.
+#
+# Change is reported in BASIS POINTS. A yield moving 3.0 to 3.5 is +50bp;
+# calling it +16.7% would be arithmetically correct and useless.
+#
+# The UK is absent on purpose: the ECB stopped collecting after Brexit and
+# the series ends in January 2020. Japan has no keyless source I could find.
+
+[[market]]
+id = "bonds"
+label = "Government bonds · 10 year"
+bonds = { "^TNX" = "US Treasury 10y", "^TYX" = "US Treasury 30y", "^FVX" = "US Treasury 5y", "^IRX" = "US Treasury 13w", "YC/B.U2.EUR.4F.G_N_A.SV_C_YM.SR_10Y" = "Euro area AAA 10y", "YC/B.U2.EUR.4F.G_N_A.SV_C_YM.SR_2Y" = "Euro area AAA 2y", "YC/B.U2.EUR.4F.G_N_A.SV_C_YM.SR_30Y" = "Euro area AAA 30y", "IRS/M.DE.L.L40.CI.0000.EUR.N.Z" = "Germany 10y", "IRS/M.ES.L.L40.CI.0000.EUR.N.Z" = "Spain 10y", "IRS/M.FR.L.L40.CI.0000.EUR.N.Z" = "France 10y", "IRS/M.IT.L.L40.CI.0000.EUR.N.Z" = "Italy 10y", "IRS/M.NL.L.L40.CI.0000.EUR.N.Z" = "Netherlands 10y", "IRS/M.PT.L.L40.CI.0000.EUR.N.Z" = "Portugal 10y", "IRS/M.GR.L.L40.CI.0000.EUR.N.Z" = "Greece 10y", "IRS/M.SE.L.L40.CI.0000.SEK.N.Z" = "Sweden 10y", "IRS/M.DK.L.L40.CI.0000.DKK.N.Z" = "Denmark 10y", "IRS/M.PL.L.L40.CI.0000.PLN.N.Z" = "Poland 10y", "IRS/M.CZ.L.L40.CI.0000.CZK.N.Z" = "Czechia 10y", "IRS/M.HU.L.L40.CI.0000.HUF.N.Z" = "Hungary 10y", "IRS/M.RO.L.L40.CI.0000.RON.N.Z" = "Romania 10y" }

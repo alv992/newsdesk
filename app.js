@@ -21,7 +21,7 @@ const BATCH = [25, 50, 100];
 const REGIONS = [["All", "all"], ["World", "world"], ["Europe", "europe"], ["Spain", "spain"]];
 const TABS = [["News feed", "feed"], ["Reports", "reports"],
               ["Markets", "markets"], ["Macro-economics", "data"]];
-const KINDS = [["All", "all"], ["Indices", "index"], ["Stocks", "stock"]];
+const KINDS = [["All", "all"], ["Indices", "index"], ["Bonds", "bond"], ["Stocks", "stock"]];
 // tier 1 wire · 2 quality · 3 regional/specialist · 4 social apps and channels
 const SOURCES = [["All", "all"], ["News only", "news"]];
 const SOCIAL_TIER = 4;
@@ -362,10 +362,16 @@ function updateReportsMeta() {
 // precomputed changes is shown — no recalculation, the numbers already
 // arrived that way from markets.py.
 
-function pctCell(v) {
+function pctCell(v, metric) {
   const cell = el("span", "pct");
-  if (v === undefined || v === null) { cell.textContent = "–"; cell.classList.add("flat"); return cell; }
-  cell.textContent = `${v > 0 ? "+" : ""}${v.toFixed(2)}%`;
+  if (v === undefined || v === null) {
+    cell.textContent = "–";
+    cell.classList.add("flat");
+    cell.title = "no data at this resolution";
+    return cell;
+  }
+  const sign = v > 0 ? "+" : "";
+  cell.textContent = metric === "bp" ? `${sign}${v.toFixed(0)} bp` : `${sign}${v.toFixed(2)}%`;
   cell.classList.add(v > 0 ? "up" : v < 0 ? "down" : "flat");
   return cell;
 }
@@ -373,17 +379,21 @@ function pctCell(v) {
 function marketRow(r) {
   const row = el("div", "mrow");
   if (r.kind === "index") row.classList.add("is-index");
+  if (r.kind === "bond") row.classList.add("is-bond");
 
   const left = el("div", "mrow-id");
   left.append(el("span", "mname", r.name), el("span", "mticker", r.symbol));
 
-  const price = el("span", "mprice", `${r.price.toLocaleString(undefined, { maximumFractionDigits: 2 })}`);
+  const price = el("span", "mprice",
+    r.metric === "bp" ? `${r.price.toFixed(2)}%`
+                      : r.price.toLocaleString(undefined, { maximumFractionDigits: 2 }));
   price.title = `${r.currency} · history since ${r.since}`;
 
-  row.append(left, price, pctCell(r.changes[state.window]), spark(
+  row.append(left, price, pctCell(r.changes[state.window], r.metric), spark(
     r.spark.map((v, i) => ({ period: i, value: v })), 110, 26));
+  const unit = r.metric === "bp" ? "bp" : "%";
   row.title = MKT.windows
-    .map((w) => `${w}: ${r.changes[w] === undefined ? "–" : r.changes[w] + "%"}`)
+    .map((w) => `${w}: ${r.changes[w] === undefined ? "–" : r.changes[w] + unit}`)
     .join("   ");
   return row;
 }

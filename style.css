@@ -409,3 +409,10 @@ main {
   .mrow { grid-template-columns: minmax(0,1fr) 74px 76px; }
   .mrow .spark { display: none; }
 }
+
+/* Bonds sit between indices and stocks, and move in basis points. */
+.mrow.is-bond { background: color-mix(in srgb, var(--bg-card) 55%, transparent); }
+.mrow.is-bond .mname { color: #d3869b; }
+.mrow.is-bond .spark-line { stroke: #d3869b; }
+.mrow.is-bond .spark-fill { fill: #d3869b; }
+.mrow.is-bond .spark-dot  { fill: #d3869b; }
