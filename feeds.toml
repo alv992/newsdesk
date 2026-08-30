@@ -354,6 +354,57 @@ tier = 1
 region = "europe"
 category = "economic-finance"
 
+# ───────────────────── Technology · chips and code ───────────────────
+
+[[feed]]
+name = "Tom's Hardware"
+url = "https://www.tomshardware.com/feeds/all"
+tier = 3
+region = "world"
+category = "technology"
+
+[[feed]]
+name = "EE Times"
+url = "https://www.eetimes.com/feed/"
+tier = 3
+region = "world"
+category = "technology"
+
+[[feed]]
+name = "The Register"
+url = "https://www.theregister.com/headlines.atom"
+tier = 3
+region = "world"
+category = "technology"
+
+[[feed]]
+name = "404 Media"
+url = "https://www.404media.co/rss/"
+tier = 2
+region = "world"
+category = "technology"
+
+[[feed]]
+name = "Rest of World"
+url = "https://restofworld.org/feed/latest/"
+tier = 2
+region = "world"
+category = "technology"
+
+[[feed]]
+name = "LWN"
+url = "https://lwn.net/headlines/rss"
+tier = 2
+region = "world"
+category = "technology"
+
+[[feed]]
+name = "Phoronix"
+url = "https://www.phoronix.com/rss.php"
+tier = 3
+region = "world"
+category = "technology"
+
 # ─────────────────── Social apps and channels · tier 4 ───────────────
 # Hidden when the Sources filter is set to News only. See D15.
 #
@@ -390,6 +441,13 @@ name = "#osint (Mastodon)"
 url = "https://mastodon.social/tags/osint.rss"
 tier = 4
 region = "world"
+
+[[feed]]
+name = "Lobsters"
+url = "https://lobste.rs/rss"
+tier = 4
+region = "world"
+category = "technology"
 
 # ────────────────────────────── Reports ──────────────────────────────
 # kind = "report" moves a feed out of the News tab and into Reports.
@@ -440,4 +498,46 @@ name = "Real Instituto Elcano"
 url = "https://www.realinstitutoelcano.org/feed/"
 tier = 2
 region = "spain"
+kind = "report"
+
+[[feed]]
+name = "SemiAnalysis"
+url = "https://semianalysis.com/feed/"
+tier = 2
+region = "world"
+kind = "report"
+
+[[feed]]
+name = "Import AI"
+url = "https://importai.substack.com/feed"
+tier = 2
+region = "world"
+kind = "report"
+
+[[feed]]
+name = "The Chip Letter"
+url = "https://thechipletter.substack.com/feed"
+tier = 3
+region = "world"
+kind = "report"
+
+[[feed]]
+name = "Simon Willison"
+url = "https://simonwillison.net/atom/everything/"
+tier = 3
+region = "world"
+kind = "report"
+
+[[feed]]
+name = "Interconnects"
+url = "https://www.interconnects.ai/feed"
+tier = 3
+region = "world"
+kind = "report"
+
+[[feed]]
+name = "Pragmatic Engineer"
+url = "https://blog.pragmaticengineer.com/rss/"
+tier = 3
+region = "world"
 kind = "report"
