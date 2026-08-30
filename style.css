@@ -6,6 +6,11 @@
      under the header, never past its edges. */
   --panel: 860px;
 
+  /* Real height of the sticky header, measured in app.js. The brief's date
+     line stacks directly under it, and the header is shorter on tabs where
+     the filter row is hidden. */
+  --header-h: 104px;
+
   --bg:       #32302f;
   --bg-card:  #3c3836;
   --bg-hover: #45403d;
@@ -428,9 +433,17 @@ main {
 
 /* ─────────────────────────────── summary ────────────────────────────── */
 
-#brief { max-width: var(--panel); margin: 0 auto; padding-top: 24px; }
+#brief { max-width: var(--panel); margin: 0 auto; padding-top: 14px; }
 
-.brief-head { margin-bottom: 26px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
+.brief-head {
+  position: sticky;
+  top: var(--header-h);
+  z-index: 9;
+  margin-bottom: 26px;
+  padding: 10px 0 12px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
 .brief-head h2 { margin: 0; font-size: 21px; font-weight: 600; letter-spacing: -0.01em; }
 .brief-sub { margin: 4px 0 0; font-size: 12px; color: var(--fg-faint); }
 

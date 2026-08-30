@@ -576,11 +576,24 @@ function bindTime() {
     });
 }
 
+// The brief's date line sticks directly under the main header, so it needs
+// the header's real height — which changes per tab, since the filter row is
+// hidden on Summary and Macro.
+function measureHeader() {
+  requestAnimationFrame(() => {
+    const h = document.querySelector("header").getBoundingClientRect().height;
+    document.documentElement.style.setProperty("--header-h", `${Math.round(h)}px`);
+  });
+}
+
+addEventListener("resize", measureHeader);
+
 function showTab(name) {
   state.tab = name;
   store.set("tab", name);
 
   document.documentElement.style.setProperty("--panel", PANEL_WIDTH[name] || "860px");
+  measureHeader();
   for (const [key, panel] of Object.entries(panels)) panel.hidden = key !== name;
   feedControls.hidden = name !== "feed" && name !== "reports";
   for (const node of document.querySelectorAll(".only-feed")) node.hidden = name !== "feed";

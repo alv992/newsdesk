@@ -33,7 +33,10 @@ export function load({ withStyles = false } = {}) {
                         `<style>${read("style.css")}</style>`);
   }
 
-  const dom = new JSDOM(html, { runScripts: "outside-only", url: "https://newsdesk.test/" });
+  // pretendToBeVisual gives us requestAnimationFrame, which the page uses to
+  // measure the header after layout.
+  const dom = new JSDOM(html, { runScripts: "outside-only", pretendToBeVisual: true,
+                                url: "https://newsdesk.test/" });
   const w = dom.window;
 
   // jsdom has neither of these. The page only uses matchMedia for

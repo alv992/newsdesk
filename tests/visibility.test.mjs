@@ -63,4 +63,16 @@ t.ok("header stays sticky across tabs", ["summary", "markets", "data"].every((n)
 }));
 tab("feed");
 
+// Only the date line sticks inside the Summary panel — the paragraphs scroll.
+tab("summary");
+const briefCss = css.slice(css.indexOf(".brief-head {"), css.indexOf(".brief-sub"));
+t.ok("brief date is sticky", /position:\s*sticky/.test(briefCss));
+t.ok("it stacks under the header, not at zero", /top:\s*var\(--header-h\)/.test(briefCss));
+t.ok("it has its own background", /background:\s*var\(--bg\)/.test(briefCss));
+t.ok("it sits below the header in stacking order",
+     /z-index:\s*9\b/.test(briefCss) && /z-index:\s*10\b/.test(headerRule));
+t.ok("the paragraphs themselves do not stick",
+     !/position:\s*sticky/.test(css.slice(css.indexOf(".brief-news"), css.indexOf(".brief-markets"))));
+tab("feed");
+
 t.done();
