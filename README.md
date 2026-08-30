@@ -92,9 +92,17 @@ re-check it once or twice a year.
 
 ### Bond yields
 
-Government bonds come from the **ECB**, not Yahoo — keyless, and the only
-place carrying comparable sovereign yields across Europe. US treasuries come
-from Yahoo.
+Each bond sits with its own country — Spain's 10-year under Spain, US
+treasuries under the United States — so a market block reads index, then
+bond, then its largest listed companies.
+
+The **European Union** block holds the ECB's euro area AAA curve plus the
+10-year benchmark for European countries with no equity block of their own:
+Netherlands, Portugal, Greece, Denmark, Poland, Czechia, Hungary, Romania.
+
+Bonds come from the **ECB**, not Yahoo — keyless, and the only place
+carrying comparable sovereign yields across Europe. US treasuries come from
+Yahoo.
 
 **Change is in basis points, not percent.** A yield moving 3.0 to 3.5 is
 +50bp; calling it +16.7% would be arithmetically correct and useless.

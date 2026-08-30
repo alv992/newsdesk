@@ -18,36 +18,60 @@ id = "us"
 label = "United States"
 index = { "^GSPC" = "S&P 500", "^IXIC" = "Nasdaq Composite", "^DJI" = "Dow Jones", "^RUT" = "Russell 2000", "^VIX" = "VIX" }
 stocks = { "NVDA" = "Nvidia", "AAPL" = "Apple", "MSFT" = "Microsoft", "GOOGL" = "Alphabet", "AMZN" = "Amazon", "META" = "Meta", "AVGO" = "Broadcom", "BRK-B" = "Berkshire Hathaway", "TSLA" = "Tesla", "WMT" = "Walmart", "JPM" = "JPMorgan Chase", "LLY" = "Eli Lilly", "V" = "Visa", "ORCL" = "Oracle", "MA" = "Mastercard", "XOM" = "Exxon Mobil", "COST" = "Costco", "NFLX" = "Netflix", "JNJ" = "Johnson & Johnson", "HD" = "Home Depot", "PG" = "Procter & Gamble", "ABBV" = "AbbVie", "BAC" = "Bank of America", "AMD" = "AMD", "CVX" = "Chevron", "KO" = "Coca-Cola", "MRK" = "Merck", "PEP" = "PepsiCo", "CSCO" = "Cisco", "ADBE" = "Adobe", "MCD" = "McDonald's", "CRM" = "Salesforce", "IBM" = "IBM", "GS" = "Goldman Sachs", "CAT" = "Caterpillar" }
+bonds = { "^TNX" = "Treasury 10y", "^TYX" = "Treasury 30y", "^FVX" = "Treasury 5y", "^IRX" = "Treasury 13w" }
 
 [[market]]
 id = "es"
 label = "Spain"
 index = { "^IBEX" = "IBEX 35" }
 stocks = { "ITX.MC" = "Inditex", "IBE.MC" = "Iberdrola", "SAN.MC" = "Banco Santander", "BBVA.MC" = "BBVA", "AENA.MC" = "Aena", "TEF.MC" = "Telefonica", "CABK.MC" = "CaixaBank", "FER.MC" = "Ferrovial", "AMS.MC" = "Amadeus", "REP.MC" = "Repsol", "ELE.MC" = "Endesa", "NTGY.MC" = "Naturgy", "CLNX.MC" = "Cellnex", "MTS.MC" = "ArcelorMittal", "SAB.MC" = "Banco Sabadell", "ACS.MC" = "ACS", "PUIG.MC" = "Puig", "BKT.MC" = "Bankinter", "RED.MC" = "Redeia", "IAG.MC" = "IAG", "MRL.MC" = "Merlin Properties", "ANA.MC" = "Acciona", "MAP.MC" = "Mapfre", "ENG.MC" = "Enagas", "GRF.MC" = "Grifols", "COL.MC" = "Colonial", "UNI.MC" = "Unicaja", "ACX.MC" = "Acerinox", "LOG.MC" = "Logista", "ROVI.MC" = "Rovi", "IDR.MC" = "Indra", "MEL.MC" = "Melia Hotels", "SLR.MC" = "Solaria", "FDR.MC" = "Fluidra", "ANE.MC" = "Acciona Energia" }
+bonds = { "IRS/M.ES.L.L40.CI.0000.EUR.N.Z" = "Spain 10y" }
 
 [[market]]
 id = "de"
 label = "Germany"
 index = { "^GDAXI" = "DAX" }
 stocks = { "SAP.DE" = "SAP", "SIE.DE" = "Siemens", "ALV.DE" = "Allianz", "AIR.DE" = "Airbus", "DTE.DE" = "Deutsche Telekom", "MUV2.DE" = "Munich Re", "RHM.DE" = "Rheinmetall", "MBG.DE" = "Mercedes-Benz", "BMW.DE" = "BMW", "ENR.DE" = "Siemens Energy", "SHL.DE" = "Siemens Healthineers", "IFX.DE" = "Infineon", "DHL.DE" = "Deutsche Post DHL", "BAS.DE" = "BASF", "ADS.DE" = "Adidas", "DBK.DE" = "Deutsche Bank", "EOAN.DE" = "E.ON", "RWE.DE" = "RWE", "VOW3.DE" = "Volkswagen", "MRK.DE" = "Merck KGaA", "BAYN.DE" = "Bayer", "P911.DE" = "Porsche AG", "HEI.DE" = "Heidelberg Materials", "BEI.DE" = "Beiersdorf", "HEN3.DE" = "Henkel", "SY1.DE" = "Symrise", "DB1.DE" = "Deutsche Boerse", "CBK.DE" = "Commerzbank", "FRE.DE" = "Fresenius", "CON.DE" = "Continental", "ZAL.DE" = "Zalando", "QIA.DE" = "Qiagen", "1COV.DE" = "Covestro", "BNR.DE" = "Brenntag", "SRT3.DE" = "Sartorius" }
+bonds = { "IRS/M.DE.L.L40.CI.0000.EUR.N.Z" = "Germany 10y" }
 
 [[market]]
 id = "fr"
 label = "France"
 index = { "^FCHI" = "CAC 40" }
 stocks = { "MC.PA" = "LVMH", "OR.PA" = "L'Oreal", "TTE.PA" = "TotalEnergies", "RMS.PA" = "Hermes", "SU.PA" = "Schneider Electric", "SAF.PA" = "Safran", "AIR.PA" = "Airbus", "AI.PA" = "Air Liquide", "SAN.PA" = "Sanofi", "EL.PA" = "EssilorLuxottica", "BNP.PA" = "BNP Paribas", "DG.PA" = "Vinci", "CS.PA" = "AXA", "STLAP.PA" = "Stellantis", "ACA.PA" = "Credit Agricole", "KER.PA" = "Kering", "GLE.PA" = "Societe Generale", "ORA.PA" = "Orange", "DSY.PA" = "Dassault Systemes", "HO.PA" = "Thales", "CAP.PA" = "Capgemini", "LR.PA" = "Legrand", "PUB.PA" = "Publicis", "VIE.PA" = "Veolia", "ENGI.PA" = "Engie", "RI.PA" = "Pernod Ricard", "BN.PA" = "Danone", "ML.PA" = "Michelin", "CA.PA" = "Carrefour", "EN.PA" = "Bouygues", "SGO.PA" = "Saint-Gobain", "URW.PA" = "Unibail-Rodamco", "TEP.PA" = "Teleperformance", "STMPA.PA" = "STMicroelectronics", "EDEN.PA" = "Edenred" }
+bonds = { "IRS/M.FR.L.L40.CI.0000.EUR.N.Z" = "France 10y" }
 
 [[market]]
 id = "it"
 label = "Italy"
 index = { "FTSEMIB.MI" = "FTSE MIB" }
 stocks = { "ENEL.MI" = "Enel", "ISP.MI" = "Intesa Sanpaolo", "UCG.MI" = "UniCredit", "ENI.MI" = "Eni", "RACE.MI" = "Ferrari", "G.MI" = "Generali", "STLAM.MI" = "Stellantis", "PST.MI" = "Poste Italiane", "SRG.MI" = "Snam", "TRN.MI" = "Terna", "MB.MI" = "Mediobanca", "LDO.MI" = "Leonardo", "MONC.MI" = "Moncler", "BAMI.MI" = "Banco BPM", "PIRC.MI" = "Pirelli", "CPR.MI" = "Campari", "REC.MI" = "Recordati", "A2A.MI" = "A2A", "IG.MI" = "Italgas", "TIT.MI" = "Telecom Italia", "BMED.MI" = "Banca Mediolanum", "FBK.MI" = "FinecoBank", "AMP.MI" = "Amplifon", "PRY.MI" = "Prysmian", "HER.MI" = "Hera", "BPE.MI" = "BPER Banca", "DIA.MI" = "DiaSorin", "IP.MI" = "Interpump", "TEN.MI" = "Tenaris", "UNI.MI" = "Unipol", "BZU.MI" = "Buzzi", "ERG.MI" = "ERG", "IVG.MI" = "Iveco", "SPM.MI" = "Saipem", "BC.MI" = "Brunello Cucinelli" }
+bonds = { "IRS/M.IT.L.L40.CI.0000.EUR.N.Z" = "Italy 10y" }
 
 [[market]]
 id = "se"
 label = "Sweden"
 index = { "^OMX" = "OMX Stockholm 30" }
 stocks = { "INVE-B.ST" = "Investor AB", "ATCO-A.ST" = "Atlas Copco", "VOLV-B.ST" = "Volvo", "ASSA-B.ST" = "Assa Abloy", "SEB-A.ST" = "SEB", "HEXA-B.ST" = "Hexagon", "SAND.ST" = "Sandvik", "EVO.ST" = "Evolution", "SWED-A.ST" = "Swedbank", "SHB-A.ST" = "Handelsbanken", "NDA-SE.ST" = "Nordea", "ERIC-B.ST" = "Ericsson", "EPI-A.ST" = "Epiroc", "ESSITY-B.ST" = "Essity", "HM-B.ST" = "H&M", "ALFA.ST" = "Alfa Laval", "TELIA.ST" = "Telia", "SKF-B.ST" = "SKF", "BOL.ST" = "Boliden", "NIBE-B.ST" = "NIBE", "SCA-B.ST" = "SCA", "GETI-B.ST" = "Getinge", "INDU-C.ST" = "Industrivarden", "LIFCO-B.ST" = "Lifco", "SAAB-B.ST" = "Saab", "TEL2-B.ST" = "Tele2", "AZA.ST" = "Avanza", "ADDT-B.ST" = "Addtech", "LATO-B.ST" = "Latour", "TREL-B.ST" = "Trelleborg" }
+bonds = { "IRS/M.SE.L.L40.CI.0000.SEK.N.Z" = "Sweden 10y" }
+
+# ─────────────────────── European Union · reference ──────────────────
+# The ECB's euro area AAA yield curve, plus the 10-year Maastricht
+# benchmark for European countries that have no equity block above.
+#
+# Source is the ECB, not Yahoo — keyless, and the only place carrying
+# comparable sovereign yields across Europe.
+#
+# National series are MONTHLY, so their DoD and 1W columns stay blank.
+# The AAA curve is business-daily and fills every window.
+#
+# The UK is absent on purpose: the ECB stopped collecting after Brexit
+# and the series ends in January 2020.
+
+[[market]]
+id = "eu"
+label = "European Union"
+bonds = { "YC/B.U2.EUR.4F.G_N_A.SV_C_YM.SR_2Y" = "Euro area AAA 2y", "YC/B.U2.EUR.4F.G_N_A.SV_C_YM.SR_10Y" = "Euro area AAA 10y", "YC/B.U2.EUR.4F.G_N_A.SV_C_YM.SR_30Y" = "Euro area AAA 30y", "IRS/M.NL.L.L40.CI.0000.EUR.N.Z" = "Netherlands 10y", "IRS/M.PT.L.L40.CI.0000.EUR.N.Z" = "Portugal 10y", "IRS/M.GR.L.L40.CI.0000.EUR.N.Z" = "Greece 10y", "IRS/M.DK.L.L40.CI.0000.DKK.N.Z" = "Denmark 10y", "IRS/M.PL.L.L40.CI.0000.PLN.N.Z" = "Poland 10y", "IRS/M.CZ.L.L40.CI.0000.CZK.N.Z" = "Czechia 10y", "IRS/M.HU.L.L40.CI.0000.HUF.N.Z" = "Hungary 10y", "IRS/M.RO.L.L40.CI.0000.RON.N.Z" = "Romania 10y" }
 
 [[market]]
 id = "uk"
@@ -83,23 +107,3 @@ stocks = { "D05.SI" = "DBS Group", "O39.SI" = "OCBC", "U11.SI" = "UOB", "Z74.SI"
 id = "other"
 label = "Other markets"
 index = { "^GSPTSE" = "TSX (Canada)", "^AXJO" = "ASX 200 (Australia)", "^SSMI" = "SMI (Switzerland)", "^AEX" = "AEX (Netherlands)", "^BVSP" = "Bovespa (Brazil)", "^KS11" = "KOSPI (South Korea)", "^TWII" = "TAIEX (Taiwan)", "^MXX" = "IPC (Mexico)" }
-
-# ─────────────────────── Government bond yields ──────────────────────
-# Source is the ECB, not Yahoo — keyless, and the only place that carries
-# comparable sovereign yields across Europe.
-#
-# National series are the Maastricht convergence criterion: 10-year
-# benchmark yields, MONTHLY. So the daily windows (DoD, 1W) are blank for
-# them — the data has no daily resolution and inventing one would be a lie.
-# The euro area AAA curve is business-daily and fills every window.
-#
-# Change is reported in BASIS POINTS. A yield moving 3.0 to 3.5 is +50bp;
-# calling it +16.7% would be arithmetically correct and useless.
-#
-# The UK is absent on purpose: the ECB stopped collecting after Brexit and
-# the series ends in January 2020. Japan has no keyless source I could find.
-
-[[market]]
-id = "bonds"
-label = "Government bonds · 10 year"
-bonds = { "^TNX" = "US Treasury 10y", "^TYX" = "US Treasury 30y", "^FVX" = "US Treasury 5y", "^IRX" = "US Treasury 13w", "YC/B.U2.EUR.4F.G_N_A.SV_C_YM.SR_10Y" = "Euro area AAA 10y", "YC/B.U2.EUR.4F.G_N_A.SV_C_YM.SR_2Y" = "Euro area AAA 2y", "YC/B.U2.EUR.4F.G_N_A.SV_C_YM.SR_30Y" = "Euro area AAA 30y", "IRS/M.DE.L.L40.CI.0000.EUR.N.Z" = "Germany 10y", "IRS/M.ES.L.L40.CI.0000.EUR.N.Z" = "Spain 10y", "IRS/M.FR.L.L40.CI.0000.EUR.N.Z" = "France 10y", "IRS/M.IT.L.L40.CI.0000.EUR.N.Z" = "Italy 10y", "IRS/M.NL.L.L40.CI.0000.EUR.N.Z" = "Netherlands 10y", "IRS/M.PT.L.L40.CI.0000.EUR.N.Z" = "Portugal 10y", "IRS/M.GR.L.L40.CI.0000.EUR.N.Z" = "Greece 10y", "IRS/M.SE.L.L40.CI.0000.SEK.N.Z" = "Sweden 10y", "IRS/M.DK.L.L40.CI.0000.DKK.N.Z" = "Denmark 10y", "IRS/M.PL.L.L40.CI.0000.PLN.N.Z" = "Poland 10y", "IRS/M.CZ.L.L40.CI.0000.CZK.N.Z" = "Czechia 10y", "IRS/M.HU.L.L40.CI.0000.HUF.N.Z" = "Hungary 10y", "IRS/M.RO.L.L40.CI.0000.RON.N.Z" = "Romania 10y" }
