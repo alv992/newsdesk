@@ -10,14 +10,14 @@ const SVGNS = "http://www.w3.org/2000/svg";
 
 const $ = (id) => document.getElementById(id);
 const list = $("list"), meta = $("meta"), endNote = $("end");
-const tiles = $("tiles"), feedControls = $("feed-controls");
-const panels = { feed: $("panel-feed"), data: $("panel-data") };
+const tiles = $("tiles"), feedControls = $("feed-controls"), reportList = $("reports");
+const panels = { feed: $("panel-feed"), reports: $("panel-reports"), data: $("panel-data") };
 
 const HOURS = [["24h", 24], ["48h", 48], ["7d", 168], ["30d", 720]];
 const VIEWS = [["All", "all"], ["Unread", "unread"], ["Read", "read"]];
 const BATCH = [25, 50, 100];
 const REGIONS = [["All", "all"], ["World", "world"], ["Europe", "europe"], ["Spain", "spain"]];
-const TABS = [["News feed", "feed"], ["Data", "data"]];
+const TABS = [["News feed", "feed"], ["Reports", "reports"], ["Data", "data"]];
 // tier 1 wire · 2 quality · 3 regional/specialist · 4 social apps and channels
 const SOURCES = [["All", "all"], ["News only", "news"]];
 const SOCIAL_TIER = 4;
@@ -87,6 +87,7 @@ function labelFor(slug) {
 function filtered() {
   const cutoff = Date.now() - state.hours * 3600e3;
   return DATA.stories.filter((s) => {
+    if (s.kind === "report") return false;   // Reports has its own tab
     if (state.category !== "all" && s.category !== state.category) return false;
     if (new Date(s.published).getTime() < cutoff) return false;
     if (state.region !== "all" && s.region !== state.region) return false;
@@ -304,6 +305,34 @@ function renderData() {
   }
 }
 
+
+// ────────────────────────────── reports ───────────────────────────────
+// Slow, considered pieces. A few items a week each, so recency ranking
+// against 875 daily stories made them invisible. Their own surface, whole
+// 30-day store, no filters — there is little enough to just read it.
+
+function renderReports() {
+  const items = DATA.stories
+    .filter((s) => s.kind === "report")
+    .sort((a, b) => new Date(b.published) - new Date(a.published));
+
+  reportList.replaceChildren();
+
+  if (!items.length) {
+    reportList.append(el("p", "empty", "No reports in the last 30 days."));
+    return;
+  }
+  reportList.append(...items.map(card));
+}
+
+function updateReportsMeta() {
+  const n = DATA.stories.filter((s) => s.kind === "report").length;
+  const sources = new Set(DATA.stories.filter((s) => s.kind === "report").map((s) => s.source));
+  meta.textContent = `${n} reports from ${sources.size} sources  ·  last 30 days`;
+  meta.classList.remove("warn");
+  meta.title = "";
+}
+
 // ─────────────────────────────── tabs ──────────────────────────────────
 
 function showTab(name) {
@@ -318,6 +347,7 @@ function showTab(name) {
   }
 
   if (name === "data") { renderData(); updateDataMeta(); }
+  else if (name === "reports") { renderReports(); updateReportsMeta(); }
   else { render({ animate: false }); }
 }
 

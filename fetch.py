@@ -284,6 +284,7 @@ def fetch_one(args):
                     "published": when,
                     "source": name,
                     "tier": feed.get("tier", 4),
+                    "kind": feed.get("kind", "news"),
                     "category": categorise(text, rules, region, feed.get("category")),
                     "countries": codes,
                     "region": region,

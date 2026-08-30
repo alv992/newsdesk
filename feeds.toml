@@ -3,6 +3,7 @@
 # tier   1 = wire/primary, 2 = quality outlet, 3 = regional/specialist, 4 = unvetted
 # category  optional. A feed with one obvious topic declares it here. Used ONLY
 #           when no keyword in categories.toml matches. Keywords always win.
+# kind   news (default) | report — report feeds go to the Reports tab
 # region world | europe | spain  — a fallback only; the real region comes from
 #                                  the countries found in the story text.
 #
@@ -389,3 +390,54 @@ name = "#osint (Mastodon)"
 url = "https://mastodon.social/tags/osint.rss"
 tier = 4
 region = "world"
+
+# ────────────────────────────── Reports ──────────────────────────────
+# kind = "report" moves a feed out of the News tab and into Reports.
+# Slow, considered pieces. A few items a week each, so they lose on
+# recency against 875 daily stories and need their own surface. See D16.
+#
+# Crisis Group was here and is gone: its only feed is a CMS dump with
+# titles like "Washington 27 August 2026 #3" and an author username
+# leaking into the summary. Nothing usable without a source-specific hack.
+
+[[feed]]
+name = "Bellingcat"
+url = "https://www.bellingcat.com/feed/"
+tier = 2
+region = "world"
+kind = "report"
+
+[[feed]]
+name = "ECFR"
+url = "https://ecfr.eu/feed/"
+tier = 2
+region = "europe"
+kind = "report"
+
+[[feed]]
+name = "War on the Rocks"
+url = "https://warontherocks.com/feed/"
+tier = 2
+region = "world"
+kind = "report"
+
+[[feed]]
+name = "Foreign Policy"
+url = "https://foreignpolicy.com/feed/"
+tier = 2
+region = "world"
+kind = "report"
+
+[[feed]]
+name = "The Conversation"
+url = "https://theconversation.com/global/articles.atom"
+tier = 3
+region = "world"
+kind = "report"
+
+[[feed]]
+name = "Real Instituto Elcano"
+url = "https://www.realinstitutoelcano.org/feed/"
+tier = 2
+region = "spain"
+kind = "report"
