@@ -19,10 +19,10 @@ const read = (f) => fs.readFileSync(path.join(ROOT, f), "utf8");
  *   the `hidden` property can be true while CSS keeps the element on screen.
  */
 export function load({ withStyles = false } = {}) {
-  for (const f of ["data.js", "indicators.js", "markets.js"]) {
+  for (const f of ["data.js", "indicators.js", "markets.js", "summary.js"]) {
     if (!fs.existsSync(path.join(ROOT, f))) {
       console.error(`\n${f} is missing. Generate it first:\n` +
-                    `   uv run fetch.py && uv run indicators.py && uv run markets.py\n`);
+                    `   uv run fetch.py && uv run indicators.py && uv run markets.py && uv run summarise.py\n`);
       process.exit(2);
     }
   }
@@ -41,7 +41,7 @@ export function load({ withStyles = false } = {}) {
   w.matchMedia = () => ({ matches: false, addEventListener() {}, removeEventListener() {} });
   w.IntersectionObserver = class { observe() {} disconnect() {} unobserve() {} };
 
-  for (const f of ["data.js", "indicators.js", "markets.js", "app.js"]) w.eval(read(f));
+  for (const f of ["data.js", "indicators.js", "markets.js", "summary.js", "app.js"]) w.eval(read(f));
 
   const d = w.document;
   return {

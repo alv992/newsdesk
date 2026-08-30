@@ -16,3 +16,5 @@ __pycache__/
 node_modules/
 markets.js
 markets.js.tmp
+summary.js
+summary.js.tmp

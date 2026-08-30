@@ -17,6 +17,7 @@ Built against the spec in the Obsidian vault under
 uv run fetch.py          # ~61 feeds, about 6 seconds
 uv run indicators.py     # 11 macro series from the World Bank and ECB
 uv run markets.py        # 412 securities across 13 markets, about 60 seconds
+uv run summarise.py      # the daily brief
 xdg-open index.html
 ```
 
@@ -61,18 +62,33 @@ npm install     # jsdom, once
 npm test
 ```
 
-82 assertions across six suites. They load the real `index.html`, the real
+94 assertions across seven suites. They load the real `index.html`, the real
 data files and the real `app.js` into jsdom and drive the page through the
 same clicks a person would make, so they exercise the actual filters rather
 than a mock of them.
 
-Requires `data.js`, `indicators.js` and `markets.js` to exist — run the
-three fetchers first.
+Requires the generated files to exist — run the fetchers first.
 
 `tests/visibility.test.mjs` is the one worth knowing about. It checks
 `getComputedStyle`, not `element.hidden`, because an earlier version passed
 while the controls it claimed were hidden sat plainly on screen: `.field`
 sets `display: flex`, which beats the browser's own `[hidden]` rule.
+
+## The daily brief
+
+`summarise.py` writes one brief per day, overwritten on each run. Two halves,
+produced differently on purpose:
+
+- **Markets** — computed in Python. Year-on-year index moves, the five largest
+  moves per market, and bond yields. Deterministic.
+- **News** — one paragraph per category, written by a local model from
+  headlines only.
+
+**The model never sees a number it is asked to repeat.** Every figure comes
+from the same arithmetic that fills the Markets tab, and a test asserts the
+two agree. If the model is unavailable the market half still publishes.
+
+Model is set with `NEWSDESK_MODEL`, default `gpt-oss:20b`.
 
 ## Markets
 
@@ -124,7 +140,8 @@ Brexit and the series ends in January 2020.
 ```
 fetch.py         feeds → data.js
 indicators.py    agencies → indicators.js
-markets.py       Yahoo chart API → markets.js
+markets.py       Yahoo chart API + ECB → markets.js
+summarise.py     data + markets → summary.js
 feeds.toml       sources
 categories.toml  keyword rules
 indicators.toml  which series to track
@@ -135,4 +152,4 @@ style.css        Gruvbox Dark Soft
 tests/           jsdom suites, run with npm test
 ```
 
-`data.js`, `indicators.js` and `markets.js` are generated and not committed.
+`data.js`, `indicators.js`, `markets.js` and `summary.js` are generated and not committed.

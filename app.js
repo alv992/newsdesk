@@ -7,19 +7,20 @@
 const DATA = window.DATA;
 const IND = window.INDICATORS;
 const MKT = window.MARKETS;
+const SUM = window.SUMMARY;
 const SVGNS = "http://www.w3.org/2000/svg";
 
 const $ = (id) => document.getElementById(id);
 const list = $("list"), meta = $("meta"), endNote = $("end");
 const tiles = $("tiles"), feedControls = $("feed-controls"), reportList = $("reports");
-const panels = { feed: $("panel-feed"), reports: $("panel-reports"),
+const panels = { summary: $("panel-summary"), feed: $("panel-feed"), reports: $("panel-reports"),
                  markets: $("panel-markets"), data: $("panel-data") };
 
 const HOURS = [["24h", 24], ["48h", 48], ["7d", 168], ["30d", 720]];
 const VIEWS = [["All", "all"], ["Unread", "unread"], ["Read", "read"]];
 const BATCH = [25, 50, 100];
 const REGIONS = [["All", "all"], ["World", "world"], ["Europe", "europe"], ["Spain", "spain"]];
-const TABS = [["News feed", "feed"], ["Reports", "reports"],
+const TABS = [["Summary", "summary"], ["News feed", "feed"], ["Reports", "reports"],
               ["Markets", "markets"], ["Macro-economics", "data"]];
 const KINDS = [["All", "all"], ["Indices", "index"], ["Bonds", "bond"], ["Stocks", "stock"]];
 // tier 1 wire · 2 quality · 3 regional/specialist · 4 social apps and channels
@@ -48,7 +49,7 @@ const state = {
   hours:    store.get("hours", 24),
   view:     store.get("view", "all"),
   batch:    store.get("batch", 25),
-  tab:      store.get("tab", "feed"),
+  tab:      store.get("tab", "summary"),
   sources:  store.get("sources", "all") === "vetted" ? "news" : store.get("sources", "all"),
   window:   store.get("window", "DoD"),
   market:   store.get("market", "all"),
@@ -357,6 +358,84 @@ function updateReportsMeta() {
 }
 
 
+
+// ─────────────────────────────── summary ───────────────────────────────
+// Two halves. The market half is arithmetic and always present. The news
+// half is written by a model and may be missing — the brief still shows.
+
+function pctText(v) { return `${v > 0 ? "+" : ""}${v.toFixed(2)}%`; }
+
+function marketBlock(m) {
+  const box = el("section", "brief-market");
+  box.append(el("h3", "brief-market-name", m.label));
+  const grid = el("div", "brief-lines");
+
+  for (const i of m.indices) {
+    const line = el("div", "brief-line index");
+    line.append(el("span", "bl-name", i.name), pctCell(i.change, "pct"));
+    grid.append(line);
+  }
+  for (const b of m.bonds) {
+    const line = el("div", "brief-line bond");
+    line.append(el("span", "bl-name", `${b.name} · ${b.yield.toFixed(2)}%`), pctCell(b.change, "bp"));
+    grid.append(line);
+  }
+  for (const v of m.movers) {
+    const line = el("div", "brief-line");
+    line.append(el("span", "bl-name", v.name), pctCell(v.change, "pct"));
+    grid.append(line);
+  }
+  box.append(grid);
+  return box;
+}
+
+function renderSummary() {
+  const host = $("brief");
+  host.replaceChildren();
+
+  if (!SUM) {
+    host.append(el("p", "empty", "No summary.js — run:  uv run summarise.py"));
+    return;
+  }
+
+  const written = SUM.news.filter((n) => n.text);
+  const head = el("header", "brief-head");
+  head.append(el("h2", null, `Brief for ${SUM.day}`));
+  head.append(el("p", "brief-sub",
+    `${SUM.window_hours}h of news · ${written.length} of ${SUM.news.length} sections written`));
+  host.append(head);
+
+  if (!written.length) {
+    host.append(el("p", "brief-warn",
+      "No written sections today — the model was unavailable. Market figures below are unaffected."));
+  }
+
+  for (const n of SUM.news) {
+    if (!n.text) continue;
+    const sec = el("section", "brief-news");
+    const h = el("h3", "brief-cat", n.label);
+    h.append(el("span", "brief-count", `${n.count} stories`));
+    sec.append(h, el("p", null, n.text));
+    host.append(sec);
+  }
+
+  const mk = el("section", "brief-markets");
+  mk.append(el("h3", "brief-cat", "Markets · year on year"));
+  const wrap = el("div", "brief-market-grid");
+  wrap.append(...SUM.markets.map(marketBlock));
+  mk.append(wrap);
+  host.append(mk);
+}
+
+function updateSummaryMeta() {
+  if (!SUM) { meta.textContent = "No brief yet"; return; }
+  const missing = SUM.news.filter((n) => !n.text).length;
+  const bits = [`brief for ${SUM.day}`, `written ${ago(SUM.generated)}`, SUM.model];
+  if (missing) bits.push(`${missing} section${missing > 1 ? "s" : ""} missing`);
+  meta.textContent = bits.join("  ·  ");
+  meta.classList.toggle("warn", missing > 0);
+}
+
 // ─────────────────────────────── markets ───────────────────────────────
 // One row per security. The window buttons switch which of the nine
 // precomputed changes is shown — no recalculation, the numbers already
@@ -484,7 +563,7 @@ function showTab(name) {
   store.set("tab", name);
 
   for (const [key, panel] of Object.entries(panels)) panel.hidden = key !== name;
-  feedControls.hidden = name === "data" || name === "markets";
+  feedControls.hidden = name !== "feed" && name !== "reports";
   for (const node of document.querySelectorAll(".only-feed")) node.hidden = name !== "feed";
   bindTime();
 
@@ -492,7 +571,8 @@ function showTab(name) {
     b.setAttribute("aria-selected", String(b.dataset.value === name));
   }
 
-  if (name === "data") { renderData(); updateDataMeta(); }
+  if (name === "summary") { renderSummary(); updateSummaryMeta(); }
+  else if (name === "data") { renderData(); updateDataMeta(); }
   else if (name === "markets") { renderMarkets(); updateMarketsMeta(); }
   else if (name === "reports") { renderReports(); updateReportsMeta(); }
   else { render({ animate: false }); }
