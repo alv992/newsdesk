@@ -46,6 +46,7 @@ const state = {
   batch:    store.get("batch", 25),
   tab:      store.get("tab", "feed"),
   sources:  store.get("sources", "all") === "vetted" ? "news" : store.get("sources", "all"),
+  reportHours: store.get("reportHours", 720),
 };
 
 // Read ids, pruned to what still exists in the 30-day store.
@@ -311,36 +312,65 @@ function renderData() {
 // against 875 daily stories made them invisible. Their own surface, whole
 // 30-day store, no filters — there is little enough to just read it.
 
+// Region, country and read state are shared with News — they are "what am I
+// interested in". Time is not: reports publish every few days, so they keep
+// their own window, defaulting to 30 days.
+function filteredReports() {
+  const cutoff = Date.now() - state.reportHours * 3600e3;
+  return DATA.stories.filter((s) => {
+    if (s.kind !== "report") return false;
+    if (new Date(s.published).getTime() < cutoff) return false;
+    if (state.region !== "all" && s.region !== state.region) return false;
+    if (state.country !== "all" && !s.countries.includes(state.country)) return false;
+    if (state.view === "unread" && read.has(s.id)) return false;
+    if (state.view === "read" && !read.has(s.id)) return false;
+    return true;
+  }).sort((a, b) => new Date(b.published) - new Date(a.published));
+}
+
+let reportCount = 0;
+
 function renderReports() {
-  const items = DATA.stories
-    .filter((s) => s.kind === "report")
-    .sort((a, b) => new Date(b.published) - new Date(a.published));
-
+  const items = filteredReports();
+  reportCount = items.length;
   reportList.replaceChildren();
-
   if (!items.length) {
-    reportList.append(el("p", "empty", "No reports in the last 30 days."));
+    reportList.append(el("p", "empty", "No reports match those filters."));
     return;
   }
   reportList.append(...items.map(card));
 }
 
 function updateReportsMeta() {
-  const n = DATA.stories.filter((s) => s.kind === "report").length;
-  const sources = new Set(DATA.stories.filter((s) => s.kind === "report").map((s) => s.source));
-  meta.textContent = `${n} reports from ${sources.size} sources  ·  last 30 days`;
+  const total = DATA.stories.filter((s) => s.kind === "report").length;
+  const sources = new Set(filteredReports().map((s) => s.source)).size;
+  meta.textContent = `${reportCount} of ${total} reports  ·  ${sources} source${sources === 1 ? "" : "s"}`;
   meta.classList.remove("warn");
   meta.title = "";
 }
 
 // ─────────────────────────────── tabs ──────────────────────────────────
 
+function bindTime() {
+  const onReports = state.tab === "reports";
+  segment($("time"), HOURS,
+    () => (onReports ? state.reportHours : state.hours),
+    (v) => {
+      if (onReports) { state.reportHours = v; store.set("reportHours", v); }
+      else { state.hours = v; store.set("hours", v); }
+      syncAll();
+      onReports ? (renderReports(), updateReportsMeta()) : render();
+    });
+}
+
 function showTab(name) {
   state.tab = name;
   store.set("tab", name);
 
   for (const [key, panel] of Object.entries(panels)) panel.hidden = key !== name;
-  feedControls.hidden = name !== "feed";
+  feedControls.hidden = name === "data";
+  for (const node of document.querySelectorAll(".only-feed")) node.hidden = name !== "feed";
+  bindTime();
 
   for (const b of $("tabs").children) {
     b.setAttribute("aria-selected", String(b.dataset.value === name));
@@ -444,11 +474,16 @@ function buildCountries() {
   sel.value = state.country;
 }
 
+function refresh() {
+  if (state.tab === "reports") { renderReports(); updateReportsMeta(); }
+  else render();
+}
+
 function syncAll() {
   for (const b of $("cats").children) {
     b.setAttribute("aria-pressed", String(b.dataset.value === state.category));
   }
-  syncSegment($("time"), () => state.hours);
+  syncSegment($("time"), () => (state.tab === "reports" ? state.reportHours : state.hours));
   syncSegment($("view"), () => state.view);
   syncSegment($("sources"), () => state.sources);
   syncSegment($("batch"), () => state.batch);
@@ -470,16 +505,12 @@ function build() {
   region.addEventListener("change", () => {
     state.region = region.value; store.set("region", state.region);
     state.country = "all"; store.set("country", "all");
-    buildCountries(); render();
+    buildCountries(); refresh();
   });
 
   $("country").addEventListener("change", (e) => {
     state.country = e.target.value; store.set("country", state.country);
-    render();
-  });
-
-  segment($("time"), HOURS, () => state.hours, (v) => {
-    state.hours = v; store.set("hours", v); syncAll(); render();
+    refresh();
   });
 
   segment($("sources"), SOURCES, () => state.sources, (v) => {
@@ -487,7 +518,7 @@ function build() {
   });
 
   segment($("view"), VIEWS, () => state.view, (v) => {
-    state.view = v; store.set("view", v); syncAll(); render();
+    state.view = v; store.set("view", v); syncAll(); refresh();
   });
 
   segment($("batch"), BATCH.map((n) => [String(n), n]), () => state.batch, (v) => {
@@ -495,9 +526,10 @@ function build() {
   });
 
   $("reset").addEventListener("click", () => {
+    state.reportHours = 720; store.set("reportHours", 720);
     Object.assign(state, { category: "all", region: "all", country: "all", hours: 24, view: "all", batch: 25, sources: "all" });
     for (const k of ["category", "region", "country", "hours", "view", "batch", "sources"]) store.set(k, state[k]);
-    buildCategories(); syncAll(); render();
+    buildCategories(); syncAll(); bindTime(); refresh();
   });
 
   buildCountries();
