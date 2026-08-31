@@ -1,12 +1,12 @@
 # Newsdesk
 
-A local news dashboard. Pulls ~55 hand-picked feeds, tags each story with a
+A local news dashboard. Pulls 75 hand-picked feeds, tags each story with a
 category and the countries it mentions, and shows the result as a list you
-can filter. Other tabs hold slow analysis, market prices and
-macro-economic indicators.
+can filter. Five tabs: a daily brief, the news feed, slow analysis, 412
+securities across 13 markets, and macro-economic indicators.
 
-No API keys. No accounts. No build step. Two small Python scripts write data
-files, and a static page reads them.
+No API keys. No accounts. No build step. Four small Python scripts write
+data files, and a static page reads them.
 
 Built against the spec in the Obsidian vault under
 `DIY projects/OSINT projects/`.
