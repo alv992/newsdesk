@@ -14,12 +14,21 @@ Built against the spec in the Obsidian vault under
 ## Run it
 
 ```bash
-uv run fetch.py          # ~61 feeds, about 6 seconds
-uv run indicators.py     # 11 macro series from the World Bank and ECB
-uv run markets.py        # 412 securities across 13 markets, about 60 seconds
-uv run summarise.py      # the daily brief
+./refresh.sh             # everything, including the brief — about 160s
 xdg-open index.html
 ```
+
+Or a step at a time:
+
+```bash
+uv run fetch.py          # ~75 feeds, about 7 seconds
+uv run indicators.py     # 11 macro series from the World Bank and ECB
+uv run markets.py        # 412 securities across 13 markets, about 60 seconds
+uv run summarise.py      # the daily brief, about 76 seconds
+```
+
+`./refresh.sh --fast` skips the model and recomputes only the market half of
+the brief. `--no-brief` skips it entirely.
 
 `uv` reads the dependency header inside each script, so there is no
 virtualenv to create or activate.
@@ -145,6 +154,7 @@ Brexit and the series ends in January 2020.
 ## Layout
 
 ```
+refresh.sh       runs all four in order
 fetch.py         feeds → data.js
 indicators.py    agencies → indicators.js
 markets.py       Yahoo chart API + ECB → markets.js
