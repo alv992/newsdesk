@@ -462,7 +462,34 @@ main {
 }
 .brief-count { color: var(--fg-faint); font-weight: 400; letter-spacing: .04em; }
 
-.brief-news p { margin: 0; font-size: 15px; line-height: 1.7; max-width: 68ch; }
+.brief-points {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-width: 74ch;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.brief-points li {
+  position: relative;
+  padding-left: 17px;
+  font-size: 14.5px;
+  line-height: 1.55;
+}
+
+.brief-points li::before {
+  content: "";
+  position: absolute;
+  left: 2px;
+  top: .62em;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: .65;
+}
 
 .brief-markets { margin-top: 34px; padding-top: 22px; border-top: 1px solid var(--border); }
 

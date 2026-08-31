@@ -38,7 +38,9 @@ MODEL = os.environ.get("NEWSDESK_MODEL", "llama3.2:3b")
 CALL_TIMEOUT = int(os.environ.get("NEWSDESK_TIMEOUT", "420"))
 HOURS = 24
 MAX_TITLES = 45          # per category — a small model needs a short list
-PER_SOURCE = 4           # so no single feed writes the paragraph
+PER_SOURCE = 4           # so no single feed writes the section
+POINTS = 5               # bullets kept per category
+ASK_FOR = 8              # bullets requested — dedupe eats some
 TOP_MOVERS = 5
 WINDOW = "1M"            # month on month. A year barely moves between runs
 MAX_TIER = 3             # skip social sources in the brief
@@ -108,32 +110,84 @@ def market_section(mkt):
 PROMPT = """Below are {n} headlines from the last 24 hours, category "{label}".
 They are in English and Spanish.
 
-Write 4 to 5 sentences in English summarising the day in this category.
-
-Cover the range, not just the biggest story. Group related headlines and
-mention several distinct stories. A reader should finish knowing roughly
-what happened today, not one thing in detail.
+Write exactly {ask} bullet points in English, one line each, summarising the
+day in this category. Pick the {ask} most important distinct stories.
 
 Rules:
+- Output ONLY the bullets. No heading, no introduction, no closing line.
+- Start every line with "- ".
+- One sentence per bullet. No sub-bullets, no line breaks inside a bullet.
 - Use ONLY what is written in the headlines. Add no background, context,
   numbers, names or outcomes that are not below.
-- Begin with the first thing that actually happened, naming whoever it
-  happened to. NEVER begin by referring to the category, the headlines, the
-  day, or this summary — no "News in this category", no "Headlines covered".
-- Never write vague filler like "there were reports on", "covered a range of
-  topics", or "in other news". Name the thing that happened.
-- No preamble, no bullet points, no headings. One paragraph.
-- If the headlines are too scattered to summarise, say so in one sentence.
+- Name what happened and who it happened to. No vague filler like "there were
+  reports on" or "various developments".
+- {ask} DIFFERENT stories. Never restate the same event twice in different
+  words — one line per event, and pick another story instead.
+- Write in English even when the headline is in Spanish.
 
 Headlines:
 {titles}"""
 
 
-def write_paragraph(label, titles):
+BULLET = re.compile(r"^\s*(?:[-*\u2022\u2013\u2014]|\d+[.)])\s+(.+)$")
+
+
+def parse_points(text, want=POINTS):
+    """Small models drift from the format — a preamble line, numbers instead
+    of dashes, an occasional trailing note. Take what looks like a bullet and
+    fall back to sentence splitting if it ignored the format entirely."""
+    points = []
+    for line in text.splitlines():
+        m = BULLET.match(line)
+        if m:
+            points.append(m.group(1).strip().rstrip(","))
+
+    if not points:
+        points = [p.strip() for p in re.split(r"(?<=[.!?])\s+", text.strip()) if p.strip()]
+
+    return [p if p.endswith((".", "!", "?")) else p + "."
+            for p in _distinct(points)][:want]
+
+
+STOP = {"the", "a", "an", "of", "in", "on", "at", "to", "for", "and", "or", "is",
+        "was", "were", "has", "have", "had", "with", "after", "from", "by", "as",
+        "its", "his", "her", "their", "that", "this", "been", "will", "said"}
+
+
+def _words(text):
+    return {w for w in re.findall(r"[a-z0-9]+", text.lower()) if w not in STOP and len(w) > 2}
+
+
+def _distinct(points, threshold=0.3):
+    """Drop bullets that restate one already kept.
+
+    The model reliably produces near-duplicates: the same ferry sinking twice
+    with different casualty counts, three phrasings of one telescope launch.
+    A prefix comparison misses all of them, so compare content words. Five
+    bullets covering three stories is worse than three bullets.
+    """
+    kept, kept_words = [], []
+    for p in points:
+        w = _words(p)
+        if not w:
+            continue
+        # Overlap coefficient, not Jaccard: three short phrasings of one
+        # telescope launch share few words against a large union, so Jaccard
+        # scores them as distinct. Dividing by the shorter set catches them.
+        dup = any(len(w & prev) / min(len(w), len(prev)) >= threshold
+                  for prev in kept_words)
+        if dup:
+            continue
+        kept.append(p)
+        kept_words.append(w)
+    return kept
+
+
+def write_points(label, titles):
     body = "\n".join(f"- {t}" for t in titles)
     r = httpx.post(OLLAMA, timeout=CALL_TIMEOUT, json={
         "model": MODEL,
-        "prompt": PROMPT.format(n=len(titles), label=label, titles=body),
+        "prompt": PROMPT.format(n=len(titles), label=label, ask=ASK_FOR, titles=body),
         "stream": False,
         # Reasoning models spend tokens thinking before they answer, and
         # Ollama counts that against num_predict. At 320 the whole budget
@@ -147,7 +201,10 @@ def write_paragraph(label, titles):
     if not text:
         raise ValueError(f"empty response after {body.get('eval_count')} tokens "
                          f"({len(body.get('thinking') or '')} chars of reasoning)")
-    return text
+    points = parse_points(text)
+    if not points:
+        raise ValueError("no bullets found in the response")
+    return points
 
 
 def news_section(data):
@@ -180,15 +237,16 @@ def news_section(data):
         label = labels.get(slug, slug)
         t0 = time.time()
         try:
-            text = write_paragraph(label, titles)
+            points = write_points(label, titles)
             took = time.time() - t0
+            short = "" if len(points) == POINTS else f"  (only {len(points)})"
             log(f"ok    {label:18} {len(stories):4} stories, {len(titles)} sent, "
-                f"{len(text.split()):3} words, {took:5.1f}s")
+                f"{len(points)} points, {took:5.1f}s{short}")
         except Exception as e:
-            text, took = "", time.time() - t0
+            points, took = [], time.time() - t0
             log(f"FAIL  {label:18} {type(e).__name__}: {e}")
         out.append({"category": slug, "label": label, "count": len(stories),
-                    "sent": len(titles), "text": text, "seconds": round(took, 1)})
+                    "sent": len(titles), "points": points, "seconds": round(took, 1)})
     out.sort(key=lambda x: -x["count"])
     return out
 
@@ -216,7 +274,7 @@ def main():
         log(f"news: reusing {len(news)} paragraphs (NEWSDESK_NEWS=skip)")
     else:
         news = news_section(data)
-    ok = [n for n in news if n["text"]]
+    ok = [n for n in news if n["points"]]
 
     write({
         "stories_seen": len(data["stories"]),
@@ -228,9 +286,9 @@ def main():
         "news": news,
         "markets": markets,
     })
-    log(f"\n{len(ok)} of {len(news)} paragraphs written · {time.time() - t0:.0f}s total")
+    log(f"\n{len(ok)} of {len(news)} sections written · {time.time() - t0:.0f}s total")
     if not ok:
-        log("no paragraphs — the market half still published")
+        log("no sections — the market half still published")
 
 
 if __name__ == "__main__":

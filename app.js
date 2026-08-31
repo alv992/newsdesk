@@ -415,7 +415,7 @@ function renderSummary() {
     return;
   }
 
-  const written = SUM.news.filter((n) => n.text);
+  const written = SUM.news.filter((n) => n.points && n.points.length);
   const head = el("header", "brief-head");
   head.append(el("h2", null, `Brief for ${SUM.day}`));
   head.append(el("p", "brief-sub",
@@ -428,11 +428,13 @@ function renderSummary() {
   }
 
   for (const n of SUM.news) {
-    if (!n.text) continue;
+    if (!n.points || !n.points.length) continue;
     const sec = el("section", "brief-news");
     const h = el("h3", "brief-cat", n.label);
     h.append(el("span", "brief-count", `${n.count} stories`));
-    sec.append(h, el("p", null, n.text));
+    const list = el("ul", "brief-points");
+    for (const p of n.points) list.append(el("li", null, p));
+    sec.append(h, list);
     host.append(sec);
   }
 
@@ -447,7 +449,7 @@ function renderSummary() {
 
 function updateSummaryMeta() {
   if (!SUM) { meta.textContent = "No brief yet"; return; }
-  const missing = SUM.news.filter((n) => !n.text).length;
+  const missing = SUM.news.filter((n) => !n.points || !n.points.length).length;
   const bits = [`brief for ${SUM.day}`, `written ${ago(SUM.generated)}`, SUM.model];
   if (missing) bits.push(`${missing} section${missing > 1 ? "s" : ""} missing`);
   meta.textContent = bits.join("  ·  ");
