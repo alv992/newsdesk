@@ -44,7 +44,10 @@ export function load({ withStyles = false } = {}) {
   w.matchMedia = () => ({ matches: false, addEventListener() {}, removeEventListener() {} });
   w.IntersectionObserver = class { observe() {} disconnect() {} unobserve() {} };
 
-  for (const f of ["data.js", "indicators.js", "markets.js", "summary.js", "app.js"]) w.eval(read(f));
+  for (const f of ["data.js", "indicators.js", "markets.js", "summary.js"]) w.eval(read(f));
+  // Replay saved data at its capture time, so time-window tests do not expire.
+  w.Date.now = () => new w.Date(w.DATA.generated).getTime();
+  w.eval(read("app.js"));
 
   const d = w.document;
   return {

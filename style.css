@@ -518,3 +518,8 @@ main {
 }
 .brief-movers-label.up   { color: #b8bb26; }
 .brief-movers-label.down { color: #fb4934; }
+
+.brief-text { margin: 0; line-height: 1.55; }
+.brief-sources { display: flex; flex-wrap: wrap; gap: 6px 12px; margin-top: 6px; font-size: 12px; color: var(--fg-faint); }
+.brief-sources a { color: var(--accent); text-underline-offset: 3px; }
+.brief-fallback { display: block; margin-top: 5px; font-size: 12px; color: var(--fg-faint); }

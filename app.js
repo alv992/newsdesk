@@ -418,6 +418,7 @@ function renderSummary() {
   const written = SUM.news.filter((n) => n.points && n.points.length);
   const head = el("header", "brief-head");
   head.append(el("h2", null, `Brief for ${SUM.day}`));
+  if (SUM.news_generated) head.append(el("p", "brief-sub", `News updated ${new Date(SUM.news_generated).toLocaleString()}`));
   head.append(el("p", "brief-sub",
     `${SUM.window_hours}h of news · ${written.length} of ${SUM.news.length} sections written`));
   host.append(head);
@@ -427,13 +428,34 @@ function renderSummary() {
       "No written sections today — the model was unavailable. Market figures below are unaffected."));
   }
 
+  if (written.length && written.length < SUM.news.length) host.append(el("p", "brief-warn", `${SUM.news.length - written.length} news sections are unavailable.`));
+
   for (const n of SUM.news) {
     if (!n.points || !n.points.length) continue;
     const sec = el("section", "brief-news");
     const h = el("h3", "brief-cat", n.label);
     h.append(el("span", "brief-count", `${n.count} stories`));
     const list = el("ul", "brief-points");
-    for (const p of n.points) list.append(el("li", null, p));
+    for (const item of n.items || n.points.map((text) => ({ text }))) {
+      const li = el("li", null);
+      li.append(el("p", "brief-text", item.text));
+      if (item.status === "headline-fallback") li.append(el("span", "brief-fallback", "Source headline · summary unavailable"));
+      const links = el("div", "brief-sources");
+      for (const source of item.sources || []) {
+        if (!/^https?:\/\//i.test(source.url)) continue;
+        const link = el("a", null, source.source);
+        link.href = source.url;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        const date = el("time", null, ago(source.published));
+        date.dateTime = source.published;
+        date.title = new Date(source.published).toLocaleString();
+        links.append(link, date);
+      }
+      if (item.coverage_count > 1) links.append(el("span", null, `${item.coverage_count} articles covering this event`));
+      li.append(links);
+      list.append(li);
+    }
     sec.append(h, list);
     host.append(sec);
   }
