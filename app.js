@@ -681,16 +681,12 @@ function syncSegment(host, get) {
 
 function buildCategories() {
   const cats = $("cats");
-  const opts = [["All", "all"], ...DATA.categories.map((c) => [c.label, c.slug]), ["Markets", "markets"]];
+  const opts = [["All", "all"], ...DATA.categories.map((c) => [c.label, c.slug])];
   cats.replaceChildren();
   for (const [label, slug] of opts) {
     const b = el("button", "cat-btn", label);
     b.type = "button";
     b.dataset.value = slug;
-    if (slug === "markets") {
-      b.disabled = true;
-      b.title = "Portfolio panel — P1, not built yet";
-    }
     b.setAttribute("aria-pressed", String(state.category === slug));
     b.addEventListener("click", () => {
       state.category = slug; store.set("category", slug);
