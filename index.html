@@ -17,7 +17,14 @@
   <nav id="tabs" class="tabs" aria-label="Sections"></nav>
 
   <div id="feed-controls">
-    <nav id="cats" class="cats only-feed" aria-label="Category"></nav>
+    <div class="category-row only-feed">
+      <nav id="cats" class="cats only-feed" aria-label="Category"></nav>
+      <label class="field home-country-field">
+        <span>Home country</span>
+        <select id="home-country" aria-describedby="home-country-hint"></select>
+      </label>
+      <p id="home-country-hint">Sets your country news category. Topic categories stay the same.</p>
+    </div>
 
     <div class="subfilters">
       <label class="field">

@@ -85,6 +85,25 @@ name. Publishers differing from the configured search-feed label receive tier
 3 rather than inheriting the aggregator's primary-source tier. Old stored
 items obtain publisher metadata when they are fetched again.
 
+## Home country in the News feed
+
+The **Home country** dropdown defaults to Spain. Choosing another country
+renames the country category and immediately changes which articles it holds.
+The preference is saved in this browser and survives reloads and filter resets.
+Technology, Science and Economy/Finance category winners stay in their subject
+categories. General news tagged with the selected country enters its country
+category; other general news appears under Geopolitics. Each article still
+appears once. Stories mentioning several countries can enter the selected
+country's category; country mentions are not a verified domestic-focus label.
+
+Articles without country tags use the existing Spain-region fallback only
+when Spain is selected. Unknown locations are never assumed to belong to a
+new home country. The separate **Country** and **Region** filters still narrow
+the visible list and can exclude articles from the home-country category.
+The selector uses the existing country dictionary and does not fetch new feeds.
+The generated daily brief retains its original grouping; this browser preference
+does not trigger local-model generation or relabel existing summaries.
+
 ## Tests
 
 ```bash

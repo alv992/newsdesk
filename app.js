@@ -54,6 +54,7 @@ const store = {
 
 const state = {
   category: store.get("category", "all"),
+  homeCountry: store.get("homeCountry", "ES"),
   region:   store.get("region", "all"),
   country:  store.get("country", "all"),
   hours:    store.get("hours", 24),
@@ -66,6 +67,8 @@ const state = {
   kind:     store.get("kind", "all"),
   reportHours: store.get("reportHours", 720),
 };
+
+if (!Object.hasOwn(DATA.countries, state.homeCountry)) state.homeCountry = "ES";
 
 // Read ids, pruned to what still exists in the 30-day store.
 const live = new Set(DATA.stories.map((s) => s.id));
@@ -98,7 +101,18 @@ function el(tag, className, text) {
 }
 
 function labelFor(slug) {
+  if (slug === "local-politics") return DATA.countries[state.homeCountry] || "Spain";
   return (DATA.categories.find((c) => c.slug === slug) || {}).label || slug;
+}
+
+// The browser preference only changes the geographic bucket. Subject winners
+// from weighted classification stay intact, and the stored snapshot is immutable.
+function categoryFor(story) {
+  if (!["local-politics", "geopolitics"].includes(story.category)) return story.category;
+  const countries = story.countries || [];
+  const belongsHome = countries.includes(state.homeCountry) ||
+    (!countries.length && story.region === "spain" && state.homeCountry === "ES");
+  return belongsHome ? "local-politics" : "geopolitics";
 }
 
 // ─────────────────────────────── filtering ─────────────────────────────
@@ -107,7 +121,7 @@ function filtered() {
   const cutoff = Date.now() - state.hours * 3600e3;
   return DATA.stories.filter((s) => {
     if (s.kind === "report") return false;   // Reports has its own tab
-    if (state.category !== "all" && s.category !== state.category) return false;
+    if (state.category !== "all" && categoryFor(s) !== state.category) return false;
     if (new Date(s.published).getTime() < cutoff) return false;
     if (state.region !== "all" && s.region !== state.region) return false;
     if (state.country !== "all" && !s.countries.includes(state.country)) return false;
@@ -138,7 +152,7 @@ function card(story) {
     u.title = "From a social app or channel, not a news outlet";
     tags.append(u);
   }
-  tags.append(el("span", "cat", labelFor(story.category)));
+  tags.append(el("span", "cat", labelFor(categoryFor(story))));
   for (const c of story.countries.slice(0, 3)) tags.append(el("span", "cc", c));
   tags.append(el("span", "when", ago(story.published)));
   head.append(tags);
@@ -681,7 +695,7 @@ function syncSegment(host, get) {
 
 function buildCategories() {
   const cats = $("cats");
-  const opts = [["All", "all"], ...DATA.categories.map((c) => [c.label, c.slug])];
+  const opts = [["All", "all"], ...DATA.categories.map((c) => [labelFor(c.slug), c.slug])];
   cats.replaceChildren();
   for (const [label, slug] of opts) {
     const b = el("button", "cat-btn", label);
@@ -742,6 +756,21 @@ function syncAll() {
 
 function build() {
   buildCategories();
+  const home = $("home-country");
+  for (const [code, name] of Object.entries(DATA.countries).sort((a, b) => a[1].localeCompare(b[1]))) {
+    const option = el("option", null, name);
+    option.value = code;
+    home.append(option);
+  }
+  home.value = state.homeCountry;
+  home.addEventListener("change", () => {
+    if (!Object.hasOwn(DATA.countries, home.value)) return;
+    state.homeCountry = home.value;
+    store.set("homeCountry", state.homeCountry);
+    buildCategories();
+    syncAll();
+    render({ animate: false });
+  });
 
   const region = $("region");
   region.replaceChildren();
