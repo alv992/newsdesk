@@ -2,9 +2,10 @@
 <title>Newsdesk</title>
 <!-- OSINT agent: fedora, dark glasses, raised collar; the face is the gap.
      Full-bleed square (iOS and Android round the corners themselves), and the
-     figure stays inside the central safe zone so a maskable crop never clips it. -->
-<rect width="512" height="512" fill="#3eb489"/>
-<g fill="#111" transform="translate(-72 80) scale(.8)">
+     figure stays inside the central safe zone so a maskable crop never clips it.
+     Colours from Omarchy's Ash theme: background and foreground. -->
+<rect width="512" height="512" fill="#121212"/>
+<g fill="#e0e0e0" transform="translate(-72 80) scale(.8)">
   <path d="M330 138L350 60Q358 40 378 50Q405 72 432 50Q452 40 460 60L482 138Q406 172 330 138Z"/>
   <path d="M276 185Q280 165 325 158Q405 190 490 158Q538 168 538 188Q536 212 470 220Q405 228 340 220Q276 212 276 185Z"/>
   <path d="M326 232Q362 242 398 238Q398 257 366 258Q330 257 326 232Z"/>
