@@ -1,0 +1,9 @@
+services:
+  web:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8444:80"       # only reachable through `tailscale serve`
+    volumes:
+      - ./:/srv/newsdesk:ro       # cron rewrites the data files in place
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro

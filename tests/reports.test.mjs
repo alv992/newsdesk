@@ -7,7 +7,7 @@ const t = harness("Reports");
 const cards = () => d.querySelectorAll("#reports .card").length;
 const reportIds = new Set(w.DATA.stories.filter((s) => s.kind === "report").map((s) => s.id));
 
-t.ok("five tabs", d.querySelectorAll("#tabs .tab").length === 5,
+t.ok("six tabs", d.querySelectorAll("#tabs .tab").length === 6,
      [...d.querySelectorAll("#tabs .tab")].map((x) => x.textContent).join(" | "));
 t.ok("report stories exist", reportIds.size > 0, `(${reportIds.size})`);
 

@@ -1,8 +1,8 @@
 # Newsdesk sources.
 #
 # tier   1 = wire/primary, 2 = quality outlet, 3 = regional/specialist, 4 = unvetted
-# category  optional. A feed with one obvious topic declares it here. Used ONLY
-#           when no keyword in categories.toml matches. Keywords always win.
+# category  optional. A feed with one obvious topic declares it here. Adds a small classification bonus.
+# topic_hint = false disables that bonus for broad, mixed-topic feeds.
 # kind   news (default) | report — report feeds go to the Reports tab
 # region world | europe | spain  — a fallback only; the real region comes from
 #                                  the countries found in the story text.
@@ -166,6 +166,7 @@ category = "economic-finance"
 
 [[feed]]
 name = "FT"
+topic_hint = false
 url = "https://www.ft.com/rss/home"
 tier = 2
 region = "world"

@@ -18,7 +18,7 @@ const read = (f) => fs.readFileSync(path.join(ROOT, f), "utf8");
  *   Only needed by tests that check whether something is actually rendered —
  *   the `hidden` property can be true while CSS keeps the element on screen.
  */
-export function load({ withStyles = false } = {}) {
+export function load({ withStyles = false, stories = null, storage = {} } = {}) {
   for (const f of ["data.js", "indicators.js", "markets.js", "summary.js"]) {
     if (!fs.existsSync(path.join(ROOT, f))) {
       console.error(`\n${f} is missing. Generate it first:\n` +
@@ -44,7 +44,12 @@ export function load({ withStyles = false } = {}) {
   w.matchMedia = () => ({ matches: false, addEventListener() {}, removeEventListener() {} });
   w.IntersectionObserver = class { observe() {} disconnect() {} unobserve() {} };
 
-  for (const f of ["data.js", "indicators.js", "markets.js", "summary.js", "app.js"]) w.eval(read(f));
+  for (const f of ["data.js", "indicators.js", "markets.js", "summary.js", "worldmap.js"]) w.eval(read(f));
+  // Replay saved data at its capture time, so time-window tests do not expire.
+  w.Date.now = () => new w.Date(w.DATA.generated).getTime();
+  if (stories) w.DATA.stories = stories.map((story) => ({ ...story, published: story.published || w.DATA.generated }));
+  for (const [key, value] of Object.entries(storage)) w.localStorage.setItem(`newsdesk:${key}`, JSON.stringify(value));
+  w.eval(read("app.js"));
 
   const d = w.document;
   return {

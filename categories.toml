@@ -1,21 +1,6 @@
-# Category rules.
-#
-# One category per story. First block to match wins, so ORDER IS PRIORITY.
-#
-# A story matching nothing falls back on where it is:
-#   region spain  -> Local politics   (domestic news, not world affairs)
-#   anything else -> Geopolitics      (the international arena)
-#
-# Matching is case-insensitive and on whole words only, so "PP" does not
-# match "supply" and "AI" does not match "said".
-#
-# Order below: Technology, Science and Economic/Finance first because their
-# vocabulary is specific. Local last, so a Spanish inflation story lands in
-# Finance rather than Local.
-#
-# Keep terms specific. Single generic words cause wrong tagging — "app" once
-# put flood coverage in Technology via a feed's promo footer, "Meta" matched
-# the Spanish noun *meta*, and "galaxy" matched the Samsung Galaxy.
+# One category per story. Weighted evidence: strong title 6, preview 3;
+# broad title 2, preview 1; dedicated feed bonus 2. See classify() in fetch.py.
+# Multiword phrases are strong. File order does not decide the winner.
 
 [technology]
 label = "Technology"
@@ -71,7 +56,7 @@ words = [
   "stock market", "stocks", "share price", "shareholders", "equities",
   "bond yield", "bond market", "government bonds", "IPO",
   "merger", "acquisition", "takeover", "buyout", "earnings",
-  "quarterly profit", "revenue", "bankruptcy", "insolvency", "layoffs",
+  "quarterly profit", "shares fall", "shares rise", "revenue", "bankruptcy", "insolvency", "layoffs",
   "hedge fund", "private equity", "venture capital", "investors",
   "IBEX", "Nasdaq", "Dow Jones", "FTSE", "Euro Stoxx",
   "oil price", "gas price", "commodity prices", "exchange rate",

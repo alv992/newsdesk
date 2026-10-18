@@ -10,9 +10,9 @@ const shown = () => +(end().match(/of (\d+)/)?.[1] ?? end().match(/(\d+) shown/)
 tab("feed");
 t.ok("renders one batch", cards() === 25, `(${cards()})`);
 t.ok("defaults to 24h", d.querySelector('#time .seg-btn[aria-pressed="true"]').textContent === "24h");
-t.ok("category buttons built", d.querySelectorAll("#cats .cat-btn").length === 7,
+t.ok("category buttons built", d.querySelectorAll("#cats .cat-btn").length === w.DATA.categories.length + 1,
      `(${d.querySelectorAll("#cats .cat-btn").length})`);
-t.ok("Markets disabled until P1", d.querySelector('#cats .cat-btn[data-value="markets"]').disabled);
+t.ok("Markets is absent from news categories", !d.querySelector('#cats .cat-btn[data-value="markets"]'));
 
 const total24 = shown();
 t.note(`24h holds ${total24} stories`);

@@ -18,3 +18,8 @@ markets.js
 markets.js.tmp
 summary.js
 summary.js.tmp
+
+# Private planning notes (home network, devices) and local evaluation output.
+# deploy.sh skips these too.
+MEMORY.md*
+summary-evaluation-results.json

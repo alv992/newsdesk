@@ -2,7 +2,8 @@
 
 A local news dashboard. Pulls 75 hand-picked feeds, tags each story with a
 category and the countries it mentions, and shows the result as a list you
-can filter. Five tabs: a daily brief, the news feed, slow analysis, 412
+can filter. Six tabs: a daily brief, the news feed, a world map of where
+the news is, slow analysis, 412
 securities across 13 markets, and macro-economic indicators.
 
 No API keys. No accounts. No build step. Four small Python scripts write
@@ -35,6 +36,24 @@ virtualenv to create or activate.
 
 Requires Python 3.11+ and [uv](https://docs.astral.sh/uv/).
 
+## On the Pi
+
+```bash
+./deploy.sh              # from the laptop: copy, install cron, start nginx
+```
+
+nginx (Docker, `compose.yaml`) serves the page on `127.0.0.1:8444`, and
+`tailscale serve` publishes it at `https://<pi-hostname>.<tailnet>.ts.net:8444`.
+Only the page, its scripts and icons are served; everything else returns 404.
+Every response carries the headers in `security-headers.conf`: a
+Content-Security-Policy that lets the page load only its own files, plus
+`nosniff` and `Referrer-Policy: no-referrer`.
+
+Cron runs `refresh.sh` at 05:00 Pi local time and appends to
+`~/apps/newsdesk/refresh.log`. Generated data files are never copied, so a
+deploy keeps the Pi's own data. The Pi needs `uv` and Ollama with
+`llama3.2:3b` pulled.
+
 ## Add a feed
 
 Edit `feeds.toml`:
@@ -45,7 +64,7 @@ name = "Le Monde (EN)"
 url = "https://www.lemonde.fr/en/rss/une.xml"
 tier = 2            # 1 wire · 2 quality · 3 regional · 4 social apps
 region = "europe"   # world | europe | spain
-category = "technology"   # optional — only used when no keyword matches
+category = "technology"   # optional — adds a small topic score bonus
 ```
 
 Then re-run `fetch.py`. A feed that fails is logged and skipped; the page
@@ -53,58 +72,127 @@ shows how many failed.
 
 ## How a story gets its category
 
-Three steps, first match wins:
+Each article appears in exactly one category. `categories.toml` defines the
+keywords; `classify()` in `fetch.py` scores them:
 
-1. **A keyword matches** — rules live in `categories.toml`, file order is
-   priority order.
-2. **The source has a declared topic** — the `category` field above.
-3. **The region decides** — Spain becomes Local, anything else Geopolitics.
+| Evidence | Title | Preview |
+|---|---:|---:|
+| Strong phrase or explicit strong keyword | 6 | 3 |
+| Broad term or name | 2 | 1 |
 
-Keep keywords specific. Single common words cause wrong tagging: `app` once
-put flood coverage in Technology via a feed's promo footer, `Meta` matched
-the Spanish noun *meta*, and `galaxy` matched the Samsung Galaxy.
+Multiword phrases are strong; `STRONG_TERMS` defines strong single words.
+Each term counts once per field, and overlapping terms use the longest match.
+A dedicated feed category adds 2 points. Set `topic_hint = false` for a broad
+feed such as FT. The highest score wins; ties prefer the feed hint, then the
+alphabetically first category slug. A margin below 3 is flagged internally
+for review. These are heuristic scores, not calibrated probabilities.
+
+If there is no evidence, Spain falls back to Local (all domestic news), and
+other regions to Geopolitics. Country detection remains dictionary-based;
+unknown locations can still use the feed's region. Every retained article is
+reclassified on refresh, including articles no longer present in current RSS.
+The `classification` field records the scores, matching terms and decision.
+No additional category copies are created; article IDs remain URL-based.
+
+Previews decode HTML entities, preserve paragraph spacing, remove common
+related-story/promo blocks, and omit repeated titles. They keep up to two
+sentences within 400 characters, using a word-boundary ellipsis when the first
+sentence alone is too long. Missing previews remain empty. This is RSS text,
+not full-article extraction; publisher-specific clutter may still need rules.
+Search-feed items retain their feed name separately from their RSS publisher
+name. Publishers differing from the configured search-feed label receive tier
+3 rather than inheriting the aggregator's primary-source tier. Old stored
+items obtain publisher metadata when they are fetched again.
+
+## Home country in the News feed
+
+The **Home country** dropdown defaults to Spain. Choosing another country
+renames the country category and immediately changes which articles it holds.
+The preference is saved in this browser and survives reloads and filter resets.
+Technology, Science and Economy/Finance category winners stay in their subject
+categories. General news tagged with the selected country enters its country
+category; other general news appears under Geopolitics. Each article still
+appears once. Stories mentioning several countries can enter the selected
+country's category; country mentions are not a verified domestic-focus label.
+
+Articles without country tags use the existing Spain-region fallback only
+when Spain is selected. Unknown locations are never assumed to belong to a
+new home country. The separate **Country** and **Region** filters still narrow
+the visible list and can exclude articles from the home-country category.
+The selector uses the existing country dictionary and does not fetch new feeds.
+The generated daily brief retains its original grouping; this browser preference
+does not trigger local-model generation or relabel existing summaries.
 
 ## Tests
 
 ```bash
-npm install     # jsdom, once
+npm install
 npm test
+uv run --with httpx --with feedparser --with langdetect python -m unittest discover -s tests -p 'test_*.py'
 ```
 
-94 assertions across seven suites. They load the real `index.html`, the real
-data files and the real `app.js` into jsdom and drive the page through the
-same clicks a person would make, so they exercise the actual filters rather
-than a mock of them.
-
-Requires the generated files to exist — run the fetchers first.
-
-`tests/visibility.test.mjs` is the one worth knowing about. It checks
-`getComputedStyle`, not `element.hidden`, because an earlier version passed
-while the controls it claimed were hidden sat plainly on screen: `.field`
-sets `display: flex`, which beats the browser's own `[hidden]` rule.
+The page suites load the real page and saved generated data into jsdom.
+Their clock is fixed to the news snapshot so time-window assertions do not
+expire. Tests cover structured source links and fallback display, in addition
+to the existing filters, layout visibility and deterministic market figures.
+Python tests run offline with mocked model responses and cover weighted
+classification, preview cleanup, event selection, validation and fallback.
+Generated data files must exist for the page suites.
 
 ## The daily brief
 
-`summarise.py` writes one brief per day, overwritten on each run. Two halves,
-produced differently on purpose:
+`summarise.py` writes a daily brief with two parts:
 
-- **Markets** — computed in Python. Year-on-year index moves, the five largest
-  moves per market, and bond yields. Deterministic.
-- **News** — one paragraph per category, written by a local model from
-  headlines only.
+- **Markets:** month-on-month moves, index changes, bond yields and movers,
+  calculated in Python independently of the model.
+- **News:** up to five short, source-linked items per category, generated by
+  local Ollama (`NEWSDESK_MODEL`, default `llama3.2:3b`).
 
-**The model never sees a number it is asked to repeat.** Every figure comes
-from the same arithmetic that fills the Markets tab, and a test asserts the
-two agree. If the model is unavailable the market half still publishes.
+The pipeline is clean → classify → group by category → newest-first event
+selection → summarize → validate → render. Reports, social sources, future
+items and stories older than 24 hours are excluded from news selection.
+Source tiers determine eligibility, not chronological order. At most four
+selected events per publisher prevent one feed from filling a section.
 
-Model is set with `NEWSDESK_MODEL`, default `llama3.2:3b`. `gpt-oss:20b` was
-tried and rejected: it is a reasoning model, Ollama counts its thinking
-against the token budget, and Spanish input roughly doubles the reasoning.
-One run took 75 minutes and still produced nothing for the Spanish category.
-`llama3.2:3b` does the same five paragraphs in about 90 seconds.
+Event grouping removes exact and close headline duplicates before model
+calls. It conservatively compares normalized title words; cross-language
+paraphrases and substantially rewritten headlines may remain separate.
+Grouping affects the brief only: individual articles stay browsable.
 
-`NEWSDESK_NEWS=skip` reuses the previous paragraphs and recomputes only the
-market half — a second rather than minutes.
+Each call gets one selected event's newest article, with its title, cleaned
+preview, publisher, timestamp and ID. The model produces schema-constrained
+JSON with one short English sentence, targeting 15–25 words (40 maximum).
+It must preserve attribution and uncertainty. Source IDs, language, length
+and new numeric tokens are checked. Validation failures retry once;
+connection failures fall back immediately to a labeled original headline.
+These checks do not establish factual correctness; source links support review.
+
+Structured `items` contain `event_id`, `text`, `status`, `source_ids`, source
+links and coverage counts. Plain `points` are retained for compatibility;
+the frontend also supports old summaries. Links and timestamps come from
+stored articles, not model-generated URLs.
+
+`./refresh.sh --fast` (or `NEWSDESK_NEWS=skip`) reuses the existing news and
+recomputes markets. `news_generated` preserves the actual news timestamp,
+which the page displays separately from the brief refresh time. The timeout
+per Ollama request defaults to 420 seconds (`NEWSDESK_TIMEOUT`). Runtime now
+depends on event count; the old five-call benchmark no longer applies.
+
+## Map
+
+A world map drawn in Braille characters, shaded by how many stories mention
+each country in the chosen period (same stories as the News feed, reports
+excluded). Tap a country on the map, or a row in the list under it, then
+**Show in News feed** to open the feed filtered to that country.
+
+The outlines are Natural Earth's 1:110m countries, pinned to one commit and
+checked against a SHA-256 by `build_map.py`, which rasterises them into the
+committed `worldmap.js`. Nothing downloads map data at runtime: not the Pi,
+not the phone. Rebuild only to change the source or grid:
+
+```bash
+uv run build_map.py
+```
 
 ## Markets
 
@@ -165,7 +253,7 @@ indicators.toml  which series to track
 markets.toml     which indices and stocks to track
 index.html       the page
 app.js           filtering, sorting, rendering
-style.css        Gruvbox Dark Soft
+style.css        light mint; Ash when the device is dark
 tests/           jsdom suites, run with npm test
 ```
 
