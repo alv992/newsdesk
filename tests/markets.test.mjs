@@ -8,7 +8,7 @@ tab("markets");
 const rows = () => d.querySelectorAll(".mrow").length;
 const total = w.MARKETS.rows.length;
 
-t.ok("five tabs", d.querySelectorAll("#tabs .tab").length === 5,
+t.ok("six tabs", d.querySelectorAll("#tabs .tab").length === 6,
      [...d.querySelectorAll("#tabs .tab")].map((x) => x.textContent).join(" | "));
 t.ok("rows render", rows() === total, `(${rows()} of ${total})`);
 t.ok("four kinds offered", d.querySelectorAll("#kind .seg-btn").length === 4,

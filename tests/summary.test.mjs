@@ -6,7 +6,7 @@ const { d, w, tab, meta } = load();
 const t = harness("Summary");
 
 tab("summary");
-t.ok("five tabs", d.querySelectorAll("#tabs .tab").length === 5,
+t.ok("six tabs", d.querySelectorAll("#tabs .tab").length === 6,
      [...d.querySelectorAll("#tabs .tab")].map((x) => x.textContent).join(" | "));
 t.ok("summary is the default tab", JSON.parse(w.localStorage.getItem("newsdesk:tab")) === "summary");
 t.ok("brief renders", d.querySelectorAll("#brief .brief-head").length === 1);

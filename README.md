@@ -2,7 +2,8 @@
 
 A local news dashboard. Pulls 75 hand-picked feeds, tags each story with a
 category and the countries it mentions, and shows the result as a list you
-can filter. Five tabs: a daily brief, the news feed, slow analysis, 412
+can filter. Six tabs: a daily brief, the news feed, a world map of where
+the news is, slow analysis, 412
 securities across 13 markets, and macro-economic indicators.
 
 No API keys. No accounts. No build step. Four small Python scripts write
@@ -34,6 +35,24 @@ the brief. `--no-brief` skips it entirely.
 virtualenv to create or activate.
 
 Requires Python 3.11+ and [uv](https://docs.astral.sh/uv/).
+
+## On the Pi
+
+```bash
+./deploy.sh              # from the laptop: copy, install cron, start nginx
+```
+
+nginx (Docker, `compose.yaml`) serves the page on `127.0.0.1:8444`, and
+`tailscale serve` publishes it at `https://<pi-hostname>.<tailnet>.ts.net:8444`.
+Only the page, its scripts and icons are served; everything else returns 404.
+Every response carries the headers in `security-headers.conf`: a
+Content-Security-Policy that lets the page load only its own files, plus
+`nosniff` and `Referrer-Policy: no-referrer`.
+
+Cron runs `refresh.sh` at 05:00 Pi local time and appends to
+`~/apps/newsdesk/refresh.log`. Generated data files are never copied, so a
+deploy keeps the Pi's own data. The Pi needs `uv` and Ollama with
+`llama3.2:3b` pulled.
 
 ## Add a feed
 
@@ -159,6 +178,22 @@ which the page displays separately from the brief refresh time. The timeout
 per Ollama request defaults to 420 seconds (`NEWSDESK_TIMEOUT`). Runtime now
 depends on event count; the old five-call benchmark no longer applies.
 
+## Map
+
+A world map drawn in Braille characters, shaded by how many stories mention
+each country in the chosen period (same stories as the News feed, reports
+excluded). Tap a country on the map, or a row in the list under it, then
+**Show in News feed** to open the feed filtered to that country.
+
+The outlines are Natural Earth's 1:110m countries, pinned to one commit and
+checked against a SHA-256 by `build_map.py`, which rasterises them into the
+committed `worldmap.js`. Nothing downloads map data at runtime: not the Pi,
+not the phone. Rebuild only to change the source or grid:
+
+```bash
+uv run build_map.py
+```
+
 ## Markets
 
 `markets.toml` lists indices and their constituents. **Stock order is the
@@ -218,7 +253,7 @@ indicators.toml  which series to track
 markets.toml     which indices and stocks to track
 index.html       the page
 app.js           filtering, sorting, rendering
-style.css        Gruvbox Dark Soft
+style.css        light mint; Ash when the device is dark
 tests/           jsdom suites, run with npm test
 ```
 

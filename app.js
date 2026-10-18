@@ -8,19 +8,20 @@ const DATA = window.DATA;
 const IND = window.INDICATORS;
 const MKT = window.MARKETS;
 const SUM = window.SUMMARY;
+const WMAP = window.WORLDMAP;
 const SVGNS = "http://www.w3.org/2000/svg";
 
 const $ = (id) => document.getElementById(id);
 const list = $("list"), meta = $("meta"), endNote = $("end");
 const tiles = $("tiles"), feedControls = $("feed-controls"), reportList = $("reports");
 const panels = { summary: $("panel-summary"), feed: $("panel-feed"), reports: $("panel-reports"),
-                 markets: $("panel-markets"), data: $("panel-data") };
+                 markets: $("panel-markets"), data: $("panel-data"), map: $("panel-map") };
 
 const HOURS = [["24h", 24], ["48h", 48], ["7d", 168], ["30d", 720]];
 const VIEWS = [["All", "all"], ["Unread", "unread"], ["Read", "read"]];
 const BATCH = [25, 50, 100];
 const REGIONS = [["All", "all"], ["World", "world"], ["Europe", "europe"], ["Spain", "spain"]];
-const TABS = [["Summary", "summary"], ["News feed", "feed"], ["Reports", "reports"],
+const TABS = [["Summary", "summary"], ["News feed", "feed"], ["Map", "map"], ["Reports", "reports"],
               ["Markets", "markets"], ["Macro-economics", "data"]];
 const KINDS = [["All", "all"], ["Indices", "index"], ["Bonds", "bond"], ["Stocks", "stock"]];
 // tier 1 wire · 2 quality · 3 regional/specialist · 4 social apps and channels
@@ -36,6 +37,7 @@ const PANEL_WIDTH = {
   feed:    "860px",
   reports: "860px",
   data:    "860px",
+  map:     "860px",
   markets: "1040px",  // a table with five columns needs the room
 };
 
@@ -66,6 +68,7 @@ const state = {
   market:   store.get("market", "all"),
   kind:     store.get("kind", "all"),
   reportHours: store.get("reportHours", 720),
+  mapHours: store.get("mapHours", 24),
 };
 
 if (!Object.hasOwn(DATA.countries, state.homeCountry)) state.homeCountry = "ES";
@@ -600,6 +603,227 @@ function buildMarketControls() {
   });
 }
 
+// ─────────────────────────────── map ───────────────────────────────────
+//
+// window.WORLDMAP (worldmap.js, built once by build_map.py) is a 0.5° grid
+// of country indices. The map samples it at whatever resolution fits the
+// screen and draws it in Braille: each character is a 2×4 block of dots,
+// lit where there is land. Depth of colour says how many stories mention a
+// country; the list underneath says the same in words and numbers, and is
+// the easier thing to tap on a phone.
+
+const MAP_TIERS = [[1, "1–2"], [3, "3–9"], [10, "10–29"], [30, "30+"]];
+// Braille dot bit for each position in the 2×4 cell, as [column][row].
+const BRAILLE_BIT = [[0x01, 0x02, 0x04, 0x40], [0x08, 0x10, 0x20, 0x80]];
+const MAP_LIST = 15;
+let mapGrid = null;       // decoded on first use
+let mapSelected = null;
+
+function decodeMap() {
+  if (mapGrid) return mapGrid;
+  mapGrid = new Uint8Array(WMAP.cols * WMAP.rows);
+  WMAP.grid.forEach((runs, r) => {
+    let at = r * WMAP.cols;
+    for (let i = 0; i < runs.length; i += 2) {
+      mapGrid.fill(runs[i], at, at + runs[i + 1]);
+      at += runs[i + 1];
+    }
+  });
+  return mapGrid;
+}
+
+// Same stories as News feed counts: no reports, inside the map's period.
+function mapCounts() {
+  const cutoff = Date.now() - state.mapHours * 3600e3;
+  const counts = new Map();
+  for (const s of DATA.stories) {
+    if (s.kind === "report" || new Date(s.published).getTime() < cutoff) continue;
+    for (const c of s.countries) counts.set(c, (counts.get(c) || 0) + 1);
+  }
+  return counts;
+}
+
+function mapTier(n) {
+  return MAP_TIERS.filter(([min]) => n >= min).length;
+}
+
+function mapName(code) {
+  const i = WMAP ? WMAP.codes.indexOf(code) : -1;
+  return i > 0 ? WMAP.names[i] : DATA.countries[code] || code;
+}
+
+// Every character in the map is Braille, so one measured glyph gives the
+// width of all of them. jsdom measures nothing, hence the fallback.
+function mapMeasure(host) {
+  const probe = el("span", null, "⠀".repeat(20));
+  host.replaceChildren(probe);
+  const charW = probe.getBoundingClientRect().width / 20;
+  const cols = charW && host.clientWidth ? Math.floor(host.clientWidth / charW) : 72;
+  return { cols: Math.max(30, cols), charW: charW || 6 };
+}
+
+function renderMap() {
+  const host = $("map");
+  if (!WMAP) {
+    host.replaceChildren(el("p", "empty", "No worldmap.js — run:  uv run build_map.py"));
+    return;
+  }
+  const grid = decodeMap();
+  const counts = mapCounts();
+  const { cols, charW } = mapMeasure(host);
+
+  // Dots are square: equal degrees both ways, and a line is twice as tall
+  // as a character is wide (4 dots down, 2 across).
+  const dotsX = cols * 2;
+  const step = 360 / dotsX;
+  const dotsY = Math.ceil(WMAP.rows * WMAP.step / step);
+  const lines = Math.ceil(dotsY / 4);
+  const dots = new Uint8Array(dotsX * lines * 4);
+  for (let dy = 0; dy < dotsY; dy++) {
+    const r = Math.floor((dy + 0.5) * step / WMAP.step);
+    if (r >= WMAP.rows) continue;
+    for (let dx = 0; dx < dotsX; dx++) {
+      dots[dy * dotsX + dx] = grid[r * WMAP.cols + Math.floor((dx + 0.5) * step / WMAP.step)];
+    }
+  }
+
+  // Small countries (Lebanon, Qatar, Malta) can fall between samples. Any
+  // that are in the news get one dot at their label point, and that dot
+  // claims its character, or a bigger neighbour would swallow it.
+  const drawn = new Set(dots), forced = new Set();
+  WMAP.codes.forEach((code, i) => {
+    if (!code || drawn.has(i) || !counts.has(code)) return;
+    const [lon, lat] = WMAP.labels[i];
+    const dx = Math.floor((lon - WMAP.west) / step), dy = Math.floor((WMAP.north - lat) / step);
+    if (dx >= 0 && dx < dotsX && dy >= 0 && dy < dotsY) { dots[dy * dotsX + dx] = i; forced.add(i); }
+  });
+
+  // Each character belongs to the country with most dots in it; a tie goes
+  // to the one with more stories. Runs of one owner share a span.
+  const rows = [];
+  for (let line = 0; line < lines; line++) {
+    const row = el("div", "map-line");
+    let run = null, runOwner = -1, text = "";
+    const flush = () => {
+      if (!text) return;
+      run.textContent = text;
+      row.append(run);
+    };
+    for (let c = 0; c < cols; c++) {
+      let bits = 0;
+      const tally = new Map();
+      for (let x = 0; x < 2; x++) {
+        for (let y = 0; y < 4; y++) {
+          const i = dots[(line * 4 + y) * dotsX + c * 2 + x];
+          if (!i) continue;
+          bits |= BRAILLE_BIT[x][y];
+          tally.set(i, (tally.get(i) || 0) + 1);
+        }
+      }
+      let owner = 0, best = 0, bestN = -1;
+      for (let [i, k] of tally) {
+        if (forced.has(i)) k = 9;   // more than a cell's 8 dots
+        const n = counts.get(WMAP.codes[i]) || 0;
+        if (k > best || (k === best && n > bestN)) { owner = i; best = k; bestN = n; }
+      }
+      if (owner !== runOwner) {
+        flush();
+        const code = WMAP.codes[owner];
+        run = el("span", owner ? `t${mapTier(counts.get(code) || 0)}` : null);
+        if (code) {
+          run.dataset.code = code;
+          if (code === mapSelected) run.classList.add("sel");
+        }
+        runOwner = owner;
+        text = "";
+      }
+      text += String.fromCharCode(0x2800 + bits);
+    }
+    flush();
+    rows.push(row);
+  }
+  host.style.setProperty("--map-line", `${(charW * 2).toFixed(2)}px`);
+  host.replaceChildren(...rows);
+  renderMapPick(counts);
+  renderMapList(counts);
+}
+
+function renderMapPick(counts) {
+  const host = $("map-pick");
+  host.replaceChildren();
+  host.hidden = !mapSelected;
+  if (!mapSelected) return;
+  const n = counts.get(mapSelected) || 0;
+  host.append(el("strong", null, mapName(mapSelected)),
+              el("span", null, n ? `${n} ${n === 1 ? "story" : "stories"}` : "No stories in this period"));
+  if (n) {
+    const open = el("button", "map-open", "Show in News feed →");
+    open.type = "button";
+    open.addEventListener("click", () => openCountryInFeed(mapSelected));
+    host.append(open);
+  }
+}
+
+function renderMapList(counts) {
+  const host = $("map-list");
+  const top = [...counts.entries()]
+    .sort((a, b) => b[1] - a[1] || mapName(a[0]).localeCompare(mapName(b[0])))
+    .slice(0, MAP_LIST);
+  host.replaceChildren();
+  if (!top.length) { host.append(el("p", "empty", "No country is mentioned in this period.")); return; }
+  host.append(el("h3", "group-title", "Most covered"));
+  for (const [code, n] of top) {
+    const b = el("button", "map-row");
+    b.type = "button";
+    b.dataset.code = code;
+    b.setAttribute("aria-pressed", String(code === mapSelected));
+    b.append(el("span", `map-swatch t${mapTier(n)}`, "⣿"), el("span", "map-name", mapName(code)),
+             el("span", "map-count", String(n)));
+    b.addEventListener("click", () => selectMapCountry(code));
+    host.append(b);
+  }
+}
+
+function selectMapCountry(code) {
+  mapSelected = mapSelected === code ? null : code;
+  renderMap();
+}
+
+// The News feed shows exactly what the map counted for that country.
+function openCountryInFeed(code) {
+  Object.assign(state, { country: code, region: "all", category: "all", hours: state.mapHours });
+  for (const k of ["country", "region", "category", "hours"]) store.set(k, state[k]);
+  buildCategories();
+  syncAll();
+  showTab("feed");
+}
+
+function updateMapMeta() {
+  const n = WMAP ? mapCounts().size : 0;
+  const period = HOURS.find(([, h]) => h === state.mapHours)?.[0] || `${state.mapHours}h`;
+  meta.textContent = `${n} ${n === 1 ? "country" : "countries"} in the news  ·  last ${period}`;
+  meta.classList.remove("warn");
+  meta.title = "";
+}
+
+function buildMapControls() {
+  segment($("map-time"), HOURS, () => state.mapHours, (v) => {
+    state.mapHours = v; store.set("mapHours", v);
+    syncSegment($("map-time"), () => state.mapHours);
+    renderMap(); updateMapMeta();
+  });
+  $("map").addEventListener("click", (e) => {
+    const code = e.target.closest("[data-code]")?.dataset.code;
+    if (code) selectMapCountry(code);
+  });
+  let pending = false;
+  addEventListener("resize", () => {
+    if (state.tab !== "map" || pending) return;
+    pending = true;
+    requestAnimationFrame(() => { pending = false; renderMap(); });
+  });
+}
+
 // ─────────────────────────────── tabs ──────────────────────────────────
 
 function bindTime() {
@@ -626,6 +850,34 @@ function measureHeader() {
 
 addEventListener("resize", measureHeader);
 
+// On a phone the filter rows would take a third of the screen, so they stay
+// folded behind a button (CSS hides them unless .open). The button counts
+// the filters that differ from their defaults, so a narrowed list is never
+// a surprise. Batch size and home country are preferences, not filters.
+const filtersToggle = $("filters-toggle");
+
+function updateFiltersToggle() {
+  const onReports = state.tab === "reports";
+  const active = [
+    !onReports && state.category !== "all",
+    state.region !== "all",
+    state.country !== "all",
+    onReports ? state.reportHours !== 720 : state.hours !== 24,
+    state.view !== "all",
+    !onReports && state.sources !== "all",
+  ].filter(Boolean).length;
+  filtersToggle.textContent = active ? `Filters · ${active}` : "Filters";
+}
+
+filtersToggle.addEventListener("click", () => {
+  const open = feedControls.classList.toggle("open");
+  filtersToggle.setAttribute("aria-expanded", String(open));
+  measureHeader();
+});
+
+// Runs after each control's own handler, as the event bubbles up.
+for (const type of ["click", "change"]) feedControls.addEventListener(type, updateFiltersToggle);
+
 function showTab(name) {
   state.tab = name;
   store.set("tab", name);
@@ -634,8 +886,10 @@ function showTab(name) {
   measureHeader();
   for (const [key, panel] of Object.entries(panels)) panel.hidden = key !== name;
   feedControls.hidden = name !== "feed" && name !== "reports";
+  filtersToggle.hidden = feedControls.hidden;
   for (const node of document.querySelectorAll(".only-feed")) node.hidden = name !== "feed";
   bindTime();
+  updateFiltersToggle();
 
   for (const b of $("tabs").children) {
     b.setAttribute("aria-selected", String(b.dataset.value === name));
@@ -645,6 +899,7 @@ function showTab(name) {
   else if (name === "data") { renderData(); updateDataMeta(); }
   else if (name === "markets") { renderMarkets(); updateMarketsMeta(); }
   else if (name === "reports") { renderReports(); updateReportsMeta(); }
+  else if (name === "map") { renderMap(); updateMapMeta(); }
   else { render({ animate: false }); }
 }
 
@@ -811,6 +1066,7 @@ function build() {
   });
 
   buildCountries();
+  buildMapControls();
 }
 
 // ─────────────────────────────── start ─────────────────────────────────

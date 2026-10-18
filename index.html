@@ -3,7 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121212" media="(prefers-color-scheme: dark)">
 <title>Newsdesk</title>
+<link rel="manifest" href="manifest.webmanifest?v=2">
+<link rel="icon" href="icons/icon.svg?v=2" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/icon-180.png?v=2">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Newsdesk">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -12,6 +21,8 @@
   <div class="bar">
     <h1>Newsdesk</h1>
     <p id="meta"></p>
+    <button id="filters-toggle" class="filters-toggle" type="button"
+            aria-controls="feed-controls" aria-expanded="false">Filters</button>
   </div>
 
   <nav id="tabs" class="tabs" aria-label="Sections"></nav>
@@ -72,6 +83,28 @@
     <p id="end"></p>
   </section>
 
+  <section id="panel-map" hidden>
+    <div class="market-bar">
+      <div class="field">
+        <span>Period</span>
+        <div id="map-time" class="seg" role="group" aria-label="Time window"></div>
+      </div>
+      <div class="field map-legend" aria-label="Stories per country">
+        <span>Stories</span>
+        <div>
+          <span class="map-swatch t0">⣿</span> none
+          <span class="map-swatch t1">⣿</span> 1–2
+          <span class="map-swatch t2">⣿</span> 3–9
+          <span class="map-swatch t3">⣿</span> 10–29
+          <span class="map-swatch t4">⣿</span> 30+
+        </div>
+      </div>
+    </div>
+    <div id="map" role="img" aria-label="World map shaded by how many stories mention each country. The list below gives the same counts."></div>
+    <p id="map-pick" class="map-pick" hidden></p>
+    <div id="map-list" class="map-list"></div>
+  </section>
+
   <section id="panel-reports" hidden>
     <div id="reports"></div>
   </section>
@@ -104,6 +137,7 @@
 <script src="indicators.js"></script>
 <script src="markets.js"></script>
 <script src="summary.js"></script>
+<script src="worldmap.js"></script>
 <script src="app.js"></script>
 
 </body>

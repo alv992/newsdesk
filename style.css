@@ -1,4 +1,5 @@
-/* Newsdesk — Gruvbox Dark Soft, matching the desktop. */
+/* Newsdesk — light mint (as the Chores app) by default; Omarchy's Ash
+   theme when the device is in dark mode. */
 
 :root {
   /* Width of the content column. Set per tab in app.js so the header and the
@@ -11,17 +12,64 @@
      the filter row is hidden. */
   --header-h: 104px;
 
-  --bg:       #32302f;
-  --bg-card:  #3c3836;
-  --bg-hover: #45403d;
-  --bg-sunk:  #2c2a29;
-  --border:   #504945;
-  --fg:       #ebdbb2;
-  --fg-dim:   #a89984;
-  --fg-faint: #7c6f64;
-  --accent:   #8ec07c;
-  --accent-d: #689d6a;
-  --warn:     #fe8019;
+  color-scheme: light;
+  --bg:          #ffffff;
+  --bg-card:     #ffffff;
+  --bg-hover:    #f1f5f3;
+  --bg-sunk:     #f4f6f5;
+  --border:      #dfe3e1;
+  --border-soft: #ebeeec;
+  --fg:          #111111;
+  --fg-dim:      #444444;
+  --fg-faint:    #6b6b6b;
+  --accent:      #3eb489;  /* fills, lines, outlines */
+  --accent-d:    #3eb489;  /* pressed buttons */
+  --accent-ink:  #13775a;  /* darker mint for text: readable on white */
+  --on-accent:   #000000;
+  --warn:        #c2410c;
+  /* Market moves: blue/orange, not green/red. Values also carry a sign. */
+  --up:          #2f62a0;
+  --down:        #c2410c;
+  --social:      #8f3f71;
+  /* Map: one orange ramp, light to dark, plus neutral land. Never hue
+     against hue, so it reads the same with any colour vision. */
+  --map-0:       #c9cdcb;
+  --map-1:       #f3c9a2;
+  --map-2:       #eb9b55;
+  --map-3:       #cf6d1c;
+  --map-4:       #8f430b;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Ash (Omarchy): monochrome. Greys carry structure; the only colour
+       left is where it means something — market moves and warnings, in
+       blue/orange, never red/green. */
+    color-scheme: dark;
+    --bg:          #121212;
+    --bg-card:     #1a1a1a;
+    --bg-hover:    #262626;
+    --bg-sunk:     #0d0d0d;
+    --border:      #333333;
+    --border-soft: #242424;
+    --fg:          #e0e0e0;
+    --fg-dim:      #adadad;
+    --fg-faint:    #8a8a8a;
+    --accent:      #9e9e9e;
+    --accent-d:    #626262;
+    --accent-ink:  #e0e0e0;
+    --on-accent:   #fafafa;
+    --warn:        #f28b3d;
+    --up:          #7fa7d9;
+    --down:        #f28b3d;
+    --social:      #b2b2b2;
+    /* Map: dim to bright with more stories. */
+    --map-0:       #383838;
+    --map-1:       #5e5e5e;
+    --map-2:       #8a8a8a;
+    --map-3:       #bdbdbd;
+    --map-4:       #fafafa;
+  }
 }
 
 * { box-sizing: border-box; }
@@ -93,7 +141,7 @@ h1 { margin: 0; font-size: 20px; font-weight: 600; letter-spacing: -0.01em; }
 .cat-btn[aria-pressed="true"] {
   background: var(--accent-d);
   border-color: var(--accent);
-  color: #1d2021;
+  color: var(--on-accent);
   font-weight: 600;
 }
 .cat-btn:disabled { opacity: .38; cursor: not-allowed; }
@@ -142,7 +190,7 @@ select {
 }
 .seg-btn:last-child { border-right: 0; }
 .seg-btn:hover { background: var(--bg-hover); color: var(--fg); }
-.seg-btn[aria-pressed="true"] { background: var(--accent-d); color: #1d2021; font-weight: 600; }
+.seg-btn[aria-pressed="true"] { background: var(--accent-d); color: var(--on-accent); font-weight: 600; }
 
 .reset {
   font: inherit;
@@ -198,7 +246,7 @@ main {
   margin-bottom: 5px;
 }
 
-.source { color: var(--accent); font-weight: 500; letter-spacing: .02em; font-size: 11.5px; }
+.source { color: var(--accent-ink); font-weight: 500; letter-spacing: .02em; font-size: 11.5px; }
 
 .tags { display: flex; align-items: baseline; gap: 8px; flex-shrink: 0; }
 
@@ -279,7 +327,7 @@ main {
   background: var(--bg-card);
   border-color: var(--border);
   border-bottom: 1px solid var(--bg-card);
-  color: var(--accent);
+  color: var(--accent-ink);
   font-weight: 600;
 }
 .tab:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
@@ -348,14 +396,14 @@ main {
 /* tier 4. Marked, not hidden: you can see it is there and decide, rather
    than it quietly sitting next to wire copy. */
 
-.card.social { border-left: 2px solid #d3869b; }
+.card.social { border-left: 2px solid var(--social); }
 
 .social-mark {
   font-size: 9.5px;
   letter-spacing: .06em;
   text-transform: uppercase;
-  color: #d3869b;
-  border: 1px solid #d3869b;
+  color: var(--social);
+  border: 1px solid var(--social);
   border-radius: 3px;
   padding: 1px 5px;
 }
@@ -383,14 +431,14 @@ main {
   align-items: center;
   gap: 14px;
   padding: 7px 10px;
-  border-bottom: 1px solid var(--border-soft, #453f3b);
+  border-bottom: 1px solid var(--border-soft);
 }
 .mrow:hover { background: var(--bg-card); }
 .mrow:last-child { border-bottom: none; }
 
 /* Indices lead each market and read as headings, not constituents. */
 .mrow.is-index { background: var(--bg-card); }
-.mrow.is-index .mname { color: var(--accent); font-weight: 600; }
+.mrow.is-index .mname { color: var(--accent-ink); font-weight: 600; }
 
 .mrow-id { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
 .mname {
@@ -412,8 +460,8 @@ main {
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
-.pct.up   { color: #b8bb26; }
-.pct.down { color: #fb4934; }
+.pct.up   { color: var(--up); }
+.pct.down { color: var(--down); }
 .pct.flat { color: var(--fg-faint); font-weight: 400; }
 
 .mrow .spark { height: 26px; }
@@ -422,14 +470,43 @@ main {
 @media (max-width: 640px) {
   .mrow { grid-template-columns: minmax(0,1fr) 74px 76px; }
   .mrow .spark { display: none; }
+
+  /* Phone: one row of tabs that swipes sideways, rather than wrapping. */
+  body { padding: 0 16px 64px; }
+  .tabs { overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab { flex: none; white-space: nowrap; padding: 7px 12px; }
+
+  /* Phone: filters fold away behind a button in the title bar. */
+  .bar { align-items: center; }
+  #meta { order: 3; flex-basis: 100%; }
+  .bar .filters-toggle { display: inline-block; margin-left: auto; }
+  #feed-controls:not(.open) { display: none; }
+  #feed-controls .cats { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  #feed-controls .cats::-webkit-scrollbar { display: none; }
+  .cat-btn { flex: none; white-space: nowrap; }
 }
+
+.filters-toggle {
+  display: none;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 4px;
+  border: 1px solid var(--accent);
+  background: transparent;
+  color: var(--accent-ink);
+  cursor: pointer;
+}
+.filters-toggle[aria-expanded="true"] { background: var(--accent-d); color: var(--on-accent); }
 
 /* Bonds sit between indices and stocks, and move in basis points. */
 .mrow.is-bond { background: color-mix(in srgb, var(--bg-card) 55%, transparent); }
-.mrow.is-bond .mname { color: #d3869b; }
-.mrow.is-bond .spark-line { stroke: #d3869b; }
-.mrow.is-bond .spark-fill { fill: #d3869b; }
-.mrow.is-bond .spark-dot  { fill: #d3869b; }
+.mrow.is-bond .mname { color: var(--social); }
+.mrow.is-bond .spark-line { stroke: var(--social); }
+.mrow.is-bond .spark-fill { fill: var(--social); }
+.mrow.is-bond .spark-dot  { fill: var(--social); }
 
 /* ─────────────────────────────── summary ────────────────────────────── */
 
@@ -457,7 +534,7 @@ main {
 
 .brief-cat {
   margin: 0 0 8px; font-size: 11px; font-weight: 600;
-  text-transform: uppercase; letter-spacing: .1em; color: var(--accent);
+  text-transform: uppercase; letter-spacing: .1em; color: var(--accent-ink);
   display: flex; align-items: baseline; gap: 10px;
 }
 .brief-count { color: var(--fg-faint); font-weight: 400; letter-spacing: .04em; }
@@ -498,7 +575,7 @@ main {
 }
 .brief-market-name {
   margin: 0 0 6px; font-size: 12.5px; font-weight: 600; color: var(--fg);
-  padding-bottom: 4px; border-bottom: 1px solid var(--border-soft, #453f3b);
+  padding-bottom: 4px; border-bottom: 1px solid var(--border-soft);
 }
 .brief-lines { display: flex; flex-direction: column; }
 .brief-line {
@@ -508,20 +585,20 @@ main {
 .brief-line .bl-name {
   color: var(--fg-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.brief-line.index .bl-name { color: var(--accent); font-weight: 500; }
-.brief-line.bond  .bl-name { color: #d3869b; }
+.brief-line.index .bl-name { color: var(--accent-ink); font-weight: 500; }
+.brief-line.bond  .bl-name { color: var(--social); }
 .brief-line .pct { font-size: 12.5px; }
 
 .brief-movers-label {
   font-size: 9.5px; text-transform: uppercase; letter-spacing: .1em;
   color: var(--fg-faint); margin: 7px 0 2px;
 }
-.brief-movers-label.up   { color: #b8bb26; }
-.brief-movers-label.down { color: #fb4934; }
+.brief-movers-label.up   { color: var(--up); }
+.brief-movers-label.down { color: var(--down); }
 
 .brief-text { margin: 0; line-height: 1.55; }
 .brief-sources { display: flex; flex-wrap: wrap; gap: 6px 12px; margin-top: 6px; font-size: 12px; color: var(--fg-faint); }
-.brief-sources a { color: var(--accent); text-underline-offset: 3px; }
+.brief-sources a { color: var(--accent-ink); text-underline-offset: 3px; }
 .brief-fallback { display: block; margin-top: 5px; font-size: 12px; color: var(--fg-faint); }
 
 .category-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; margin-top: 14px; }
@@ -529,3 +606,82 @@ main {
 .home-country-field { flex: 0 1 180px; }
 .home-country-field select { max-width: 100%; }
 #home-country-hint { flex-basis: 100%; margin: 0 0 10px; color: var(--fg-faint); font-size: 12px; }
+
+/* ──────────────────────────────── map ───────────────────────────────── */
+
+/* Every glyph is Braille, so widths are uniform whatever font supplies
+   them; app.js measures one and sets --map-line to twice its width, which
+   makes each dot square. */
+#map {
+  max-width: var(--panel);
+  margin: 12px auto 0;
+  font: 10px/1 ui-monospace, "DejaVu Sans Mono", monospace;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.map-line { white-space: pre; height: var(--map-line, 12px); line-height: var(--map-line, 12px); }
+#map [data-code] { cursor: pointer; }
+#map .sel { color: var(--fg) !important; background: color-mix(in srgb, var(--accent) 30%, transparent); }
+
+.t0 { color: var(--map-0); }
+.t1 { color: var(--map-1); }
+.t2 { color: var(--map-2); }
+.t3 { color: var(--map-3); }
+.t4 { color: var(--map-4); }
+
+.map-legend > div { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 6px;
+                    font-size: 12px; color: var(--fg-dim); padding: 4px 0; }
+.map-swatch { font-size: 14px; line-height: 1; }
+
+.map-pick {
+  max-width: var(--panel);
+  margin: 14px auto 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+  font-size: 14px;
+}
+.map-pick span { color: var(--fg-dim); font-size: 13px; }
+.map-open {
+  margin-left: auto;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 4px;
+  border: 1px solid var(--accent);
+  background: var(--accent-d);
+  color: var(--on-accent);
+  cursor: pointer;
+}
+
+.map-list {
+  max-width: var(--panel);
+  margin: 22px auto 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 0 24px;
+}
+.map-list .group-title, .map-list .empty { grid-column: 1 / -1; }
+.map-row {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  font: inherit;
+  font-size: 14px;
+  text-align: left;
+  padding: 8px 6px;
+  border: 0;
+  border-bottom: 1px solid var(--border-soft);
+  background: transparent;
+  color: var(--fg);
+  cursor: pointer;
+}
+.map-row:hover { background: var(--bg-hover); }
+.map-row[aria-pressed="true"] { background: color-mix(in srgb, var(--accent) 22%, transparent); font-weight: 600; }
+.map-count { font-variant-numeric: tabular-nums; color: var(--fg-dim); }
+:is(.map-row, .map-open):focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }

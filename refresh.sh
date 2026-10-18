@@ -6,7 +6,7 @@
 # Deliberately not `set -e`. If one step fails the rest should still run —
 # a broken markets fetch should not cost you the news.
 #
-# This is the script the 07:00 timer will run on the Pi.
+# This is the script cron runs on the Pi at 05:00 (see deploy.sh).
 #
 #   ./refresh.sh              everything
 #   ./refresh.sh --no-brief   skip the model, just the data
